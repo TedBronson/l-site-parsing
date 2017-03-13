@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import csv
 
 
 # TODO: save data to a file with date
@@ -10,9 +11,15 @@ import requests
 # TODO: gather list of districts, categories for search
 # TODO: write data in a file
 
+
 def main():
-    # get_offer_details("https://www.olx.ua/nedvizhimost/prodazha-kvartir/kharkov/?search[filter_float_number_of_rooms:from]=3&search[filter_float_number_of_rooms:to]=3&search[district_id]=79")
     get_offer_details(compose_request())
+
+
+def write_to_csv(offer_string):
+    with open('offers.csv', 'a', newline='') as csvfile:
+        csv.writer(csvfile).writerow(offer_string)
+        csvfile.close()
 
 
 def compose_request():
@@ -23,8 +30,8 @@ def compose_request():
     number_of_rooms_from = 3
     number_of_rooms_to = 3
     category_id = 13
-    currency_USD = "USD"
-    currency_EUR = "EUR"
+    currency_usd = "USD"
+    currency_eur = "EUR"
 
     search_request = "https://www.olx.ua/ajax/kharkov/search/list/"
     request_parameters = {'search[city_id]': city_id,
@@ -34,8 +41,8 @@ def compose_request():
                           'search[dist]': district,
                           'search[filter_float_number_of_rooms:from]': number_of_rooms_from,
                           'search[filter_float_number_of_rooms:to]': number_of_rooms_to,
-                          'currency': currency_USD,
-                          'page': 3}
+                          'currency': currency_usd,
+                          'page': ''}
     request_timeout = [10]
     url = [search_request, request_parameters, request_timeout]
 
@@ -57,13 +64,18 @@ def get_offer_details(url_with_params):
         link_to_offer = offer.find("a", class_="marginright5 link linkWithHash detailsLink")[
             'href']  # Link to a page with the offer
 
+        # TODO: verify if such offer exist in storage
+        offer_string = [data_id, offer_title, offer_price] # compose a string for single offer
+
+        write_to_csv(offer_string) # pass data for single offer to a storage
+
         print(data_id)
         print(offer_title)
         print(offer_price)
         print(link_to_offer)
         print("--------------------")
 
-        break
+        #break
 
 
 main()
