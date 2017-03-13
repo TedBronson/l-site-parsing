@@ -22,6 +22,15 @@ def write_to_csv(offer_string):
         csvfile.close()
 
 
+def verify_offer_exists_in_storage(data_id):
+    with open('offers.csv', 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            for field in row:
+                if field == data_id:
+                    return True
+
+
 def compose_request():
     city_id = 280
     region_id = 8
@@ -65,8 +74,12 @@ def get_offer_details(url_with_params):
             'href']  # Link to a page with the offer
 
         # TODO: verify if such offer exist in storage
-        offer_string = [data_id, offer_title, offer_price] # compose a string for single offer
+        if verify_offer_exists_in_storage(data_id):
+            print('Offer is already in storage')
+        else:
+            print("It's a new offer")
 
+        offer_string = [data_id, offer_title, offer_price] # compose a string for single offer
         write_to_csv(offer_string) # pass data for single offer to a storage
 
         print(data_id)
