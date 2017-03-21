@@ -13,7 +13,8 @@ import csv
 
 
 def main():
-    get_offer_details(compose_request())
+    offers = get_offer_details(compose_request())
+    update_offer_record(offers)
 
 
 def write_to_csv(offer_string):
@@ -29,6 +30,16 @@ def verify_offer_exists_in_storage(data_id):
             for field in row:
                 if field == data_id:
                     return True
+
+
+def update_offer_record(list_of_offers):
+    for offer in list_of_offers:
+        data_id = offer[0]
+        if verify_offer_exists_in_storage(data_id):
+            print('Offer is already in storage')
+        else:
+            write_to_csv(offer)
+            print("It's a new offer")
 
 
 def compose_request():
@@ -59,10 +70,13 @@ def compose_request():
 
 
 def get_offer_details(url_with_params):
+    offer_string = []
+    # TODO: add cycle for adding pages in request parameters
+
     page = requests.post(url_with_params[0], url_with_params[1])
     print(page.status_code)
     page = page.text
-    soup = BeautifulSoup(page)
+    soup = BeautifulSoup(page, "html.parser")
     offers = soup.find_all("td", class_="offer")
     # print(offers)
     for offer in offers:
@@ -73,22 +87,11 @@ def get_offer_details(url_with_params):
         link_to_offer = offer.find("a", class_="marginright5 link linkWithHash detailsLink")[
             'href']  # Link to a page with the offer
 
-        # TODO: verify if such offer exist in storage
-        if verify_offer_exists_in_storage(data_id):
-            print('Offer is already in storage')
-        else:
-            print("It's a new offer")
+        offer_string.append([data_id, offer_title, offer_price])
 
-        offer_string = [data_id, offer_title, offer_price] # compose a string for single offer
-        write_to_csv(offer_string) # pass data for single offer to a storage
+        # break
 
-        print(data_id)
-        print(offer_title)
-        print(offer_price)
-        print(link_to_offer)
-        print("--------------------")
-
-        #break
+    return offer_string
 
 
 main()
