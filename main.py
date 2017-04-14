@@ -9,10 +9,10 @@ import csv
 # TODO: get exact address from a map
 # TODO: pass currency in compose_request() to get proper currency result
 # TODO: gather list of districts, categories for search
-# TODO: write data in a file
 
 
 def main():
+    # get_offer_details(compose_request())
     offers = get_offer_details(compose_request())
     update_offer_record(offers)
 
@@ -72,24 +72,26 @@ def compose_request():
 def get_offer_details(url_with_params):
     offer_string = []
     # TODO: add cycle for adding pages in request parameters
+    for current_page in range(20):
+        url_with_params[1]['page'] = current_page
 
-    page = requests.post(url_with_params[0], url_with_params[1])
-    print(page.status_code)
-    page = page.text
-    soup = BeautifulSoup(page, "html.parser")
-    offers = soup.find_all("td", class_="offer")
-    # print(offers)
-    for offer in offers:
-        data_id = offer.table["data-id"]  # Get id of an offer
-        offer_title = offer.find("a",
-                                 class_="marginright5 link linkWithHash detailsLink").strong.string  # too specific. Should make class more general
-        offer_price = offer.find("p", class_="price").strong.string
-        link_to_offer = offer.find("a", class_="marginright5 link linkWithHash detailsLink")[
-            'href']  # Link to a page with the offer
+        page = requests.post(url_with_params[0], url_with_params[1])
+        print(page.status_code)
+        page = page.text
+        soup = BeautifulSoup(page, "html.parser")
+        offers = soup.find_all("td", class_="offer")
+        # print(offers)
+        for offer in offers:
+            data_id = offer.table["data-id"]  # Get id of an offer
+            offer_title = offer.find("a",
+                                     class_="marginright5 link linkWithHash detailsLink").strong.string  # too specific. Should make class more general
+            offer_price = offer.find("p", class_="price").strong.string
+            link_to_offer = offer.find("a", class_="marginright5 link linkWithHash detailsLink")[
+                'href']  # Link to a page with the offer
 
-        offer_string.append([data_id, offer_title, offer_price])
+            offer_string.append([data_id, offer_title, offer_price])
 
-        # break
+            # break
 
     return offer_string
 
