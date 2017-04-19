@@ -5,6 +5,7 @@ import csv
 
 # TODO: save data to a file with date
 # TODO: compare prices of a same listing
+# TODO: write all three prices for same listing
 # TODO: add search parameters to look into smaller market
 # TODO: get exact address from a map
 # TODO: pass currency in compose_request() to get proper currency result
@@ -12,13 +13,19 @@ import csv
 
 
 def main():
-    # get_offer_details(compose_request())
-    offers = get_offer_details(compose_request())
-    update_offer_record(offers)
+    request_all_currencies(['', 'USD', 'EUR'])
+
+
+def request_all_currencies(currencies_list):
+    for currency in currencies_list:
+        post_request_offers = compose_request(currency)
+        offers = get_offer_details(post_request_offers)
+        update_offer_record(offers)
 
 
 def write_to_csv(offer_string):
-    with open('offers.csv', 'a', newline='') as csvfile:
+    csv_file_location = 'offers.csv'
+    with open(csv_file_location, 'a', newline='') as csvfile:
         csv.writer(csvfile).writerow(offer_string)
         csvfile.close()
 
@@ -32,17 +39,24 @@ def verify_offer_exists_in_storage(data_id):
                     return True
 
 
+def verify_price_is_primary(offer):
+    offer_price_string = offer[2]
+    offer_price = [int(s) for s in offer_price_string.split() if s.isdigit()]
+    offer_price = int(''.join(map(str, offer_price)))
+    if abs(offer_price) % 100 == 00:
+        return True
+
+
 def update_offer_record(list_of_offers):
     for offer in list_of_offers:
         data_id = offer[0]
         if verify_offer_exists_in_storage(data_id):
             print('Offer is already in storage')
-        else:
+        elif verify_price_is_primary(offer):
             write_to_csv(offer)
-            print("It's a new offer")
 
 
-def compose_request():
+def compose_request(currency):
     city_id = 280
     region_id = 8
     district_id = 79
@@ -50,8 +64,6 @@ def compose_request():
     number_of_rooms_from = 3
     number_of_rooms_to = 3
     category_id = 13
-    currency_usd = "USD"
-    currency_eur = "EUR"
 
     search_request = "https://www.olx.ua/ajax/kharkov/search/list/"
     request_parameters = {'search[city_id]': city_id,
@@ -61,7 +73,7 @@ def compose_request():
                           'search[dist]': district,
                           'search[filter_float_number_of_rooms:from]': number_of_rooms_from,
                           'search[filter_float_number_of_rooms:to]': number_of_rooms_to,
-                          'currency': currency_usd,
+                          'currency': currency,
                           'page': ''}
     request_timeout = [10]
     url = [search_request, request_parameters, request_timeout]
@@ -70,9 +82,8 @@ def compose_request():
 
 
 def get_offer_details(url_with_params):
-    offer_string = []
-    # TODO: add cycle for adding pages in request parameters
-    for current_page in range(20):
+    list_of_offers = []
+    for current_page in range(10):
         url_with_params[1]['page'] = current_page
 
         page = requests.post(url_with_params[0], url_with_params[1])
@@ -89,11 +100,11 @@ def get_offer_details(url_with_params):
             link_to_offer = offer.find("a", class_="marginright5 link linkWithHash detailsLink")[
                 'href']  # Link to a page with the offer
 
-            offer_string.append([data_id, offer_title, offer_price])
+            list_of_offers.append([data_id, offer_title, offer_price])
 
             # break
 
-    return offer_string
+    return list_of_offers
 
 
 main()
