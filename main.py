@@ -1,7 +1,7 @@
 import csv
 
-from Offer import get_offer_details
-from request_composition import compose_request
+import Offer
+import request_composition
 
 
 # TODO: compare prices of a same listing
@@ -12,15 +12,14 @@ from request_composition import compose_request
 # TODO: separate data storage in separate function
 
 
-
 def main():
-    request_all_currencies(['', 'USD', 'EUR'])
+    request_all_currencies([''])  # , 'USD', 'EUR'])
 
 
 def request_all_currencies(currencies_list):
     for currency in currencies_list:
-        post_request_offers = compose_request(currency) # Creates URL request with city, category and other params
-        offers = get_offer_details(post_request_offers) # Parses offers from a page
+        post_request_offers = request_composition.compose_request(currency) # Creates URL request with city, category and other params
+        offers = Offer.get_offer_details(post_request_offers) # Parses offers from a page
         update_offer_record(offers)  # Updates or creates a record in data storage
 
 
@@ -35,8 +34,8 @@ def write_to_csv(offer_string):
         with open(csv_file_location, 'a', newline='') as csvfile:
             csv.writer(csvfile).writerow(offer_string)
             csvfile.close()
-    except Exception:
-        print("This file doesn't exist")
+    except Exception as detail:
+        print(detail)
 
 
 def verify_offer_exists_in_storage(data_id):
@@ -53,8 +52,8 @@ def verify_offer_exists_in_storage(data_id):
                 for field in row:
                     if field == data_id:
                         return True
-    except Exception:
-        print("File offers.csv doesn't exist")
+    except Exception as detail:
+        print(detail)
 
 
 def verify_price_is_primary(offer):
