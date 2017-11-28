@@ -1,59 +1,27 @@
-import csv
-
 import Offer
 import request_composition
-
-
 # TODO: compare prices of a same listing
 # TODO: write all three prices for same listing
 # TODO: add search parameters to look into smaller market
 # TODO: get exact address from a map
 # TODO: gather list of districts, categories for search
 # TODO: separate data storage in separate function
+from Data_storage import write_to_csv, verify_offer_exists_in_storage
 
 
 def main():
-    request_all_currencies([''])  # , 'USD', 'EUR'])
+    parse_offers()
 
 
-def request_all_currencies(currencies_list):
+def parse_offers():
+    currencies_list = ['', 'USD', 'EUR']  # TODO: remove into config file
     for currency in currencies_list:
         post_request_offers = request_composition.compose_request(currency) # Creates URL request with city, category and other params
-        offers = Offer.get_offer_details(post_request_offers) # Parses offers from a page
-        update_offer_record(offers)  # Updates or creates a record in data storage
+        for current_page in range(1):  # Sets limit on a number of search pages
+            post_request_offers[1]['page'] = current_page
+            offers = Offer.get_offer_details(post_request_offers) # Parses offers from all pages in a range
+            update_offer_record(offers)  # Updates or creates a record in data storage
 
-
-def write_to_csv(offer_string):
-    """
-    Appends a new line to a file. No verification and it doesn't update old records
-    :param offer_string:
-    :return:
-    """
-    csv_file_location = 'offers.csv'
-    try:
-        with open(csv_file_location, 'a', newline='') as csvfile:
-            csv.writer(csvfile).writerow(offer_string)
-            csvfile.close()
-    except Exception as detail:
-        print(detail)
-
-
-def verify_offer_exists_in_storage(data_id):
-    """
-    Verifyes that offer with same data_id already exists in storage. Need to add more variables for verification
-    to allow multiple entries of same offer with different prices.
-    :param data_id:
-    :return:
-    """
-    try:
-        with open('offers.csv', 'r') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                for field in row:
-                    if field == data_id:
-                        return True
-    except Exception as detail:
-        print(detail)
 
 
 def verify_price_is_primary(offer):
@@ -79,9 +47,9 @@ def update_offer_record(list_of_offers):
         data_id = offer[0]
         if verify_offer_exists_in_storage(data_id):
             print('Offer is already in storage')
+            print(data_id)
         else:  # elif verify_price_is_primary(offer):
             write_to_csv(offer)
-            print('New offer has been added')
 
 
 main()
