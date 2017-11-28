@@ -1,5 +1,6 @@
 import Offer
 import request_composition
+import config as cfg
 # TODO: compare prices of a same listing
 # TODO: write all three prices for same listing
 # TODO: add search parameters to look into smaller market
@@ -14,14 +15,13 @@ def main():
 
 
 def parse_offers():
-    currencies_list = ['', 'USD', 'EUR']  # TODO: remove into config file
+    currencies_list = cfg.currencies_list
     for currency in currencies_list:
         post_request_offers = request_composition.compose_request(currency) # Creates URL request with city, category and other params
-        for current_page in range(1):  # Sets limit on a number of search pages
+        for current_page in range(cfg.limit_search_pages):
             post_request_offers[1]['page'] = current_page
             offers = Offer.get_offer_details(post_request_offers) # Parses offers from all pages in a range
             update_offer_record(offers)  # Updates or creates a record in data storage
-
 
 
 def verify_price_is_primary(offer):
