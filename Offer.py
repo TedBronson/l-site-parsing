@@ -49,8 +49,22 @@ def get_offer_details(offer):
     except KeyError:
         offer_main_area = ''
 
-    # list_of_offer_details.append([data_id, date, offer_title, offer_price])
-    list_of_offer_details.append([data_id, offer_price, offer_main_area])
+    try:
+        number_of_rooms = offer_details['Количество комнат']
+    except KeyError:
+        number_of_rooms = ''
+
+    try:
+        floor = offer_details['Этаж']
+    except KeyError:
+        floor = ''
+
+    try:
+        floors_in_house = offer_details['Этажность дома']
+    except KeyError:
+        floors_in_house = ''
+
+    list_of_offer_details.append([data_id, offer_price, offer_main_area, number_of_rooms, floor, floors_in_house, date, offer_title])
 
     return list_of_offer_details
 
