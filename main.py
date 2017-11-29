@@ -11,7 +11,9 @@ from Data_storage import write_to_db, verify_offer_exists_in_db
 
 
 def main():
-    parse_offers()
+    list_of_offers = parse_offers()
+    for offer in list_of_offers:
+        update_offer_record(Offer.get_offer_details(offer))
 
 
 def parse_offers():
@@ -20,8 +22,8 @@ def parse_offers():
         post_request_offers = request_composition.compose_request(currency) # Creates URL request with city, category and other params
         for current_page in range(cfg.limit_search_pages):
             post_request_offers[1]['page'] = current_page
-            offers = Offer.get_offer_details(post_request_offers) # Parses offers from all pages in a range
-            update_offer_record(offers)  # Updates or creates a record in data storage
+            list_of_offers = Offer.get_list_of_offers(post_request_offers) # Parses offers from all pages in a range
+    return list_of_offers
 
 
 def verify_price_is_primary(offer):
