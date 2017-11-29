@@ -11,7 +11,7 @@ def get_offer_details(url_with_params):
     :return:
     """
     list_of_offers = []
-    from Data_storage import verify_offer_exists_in_storage
+    from Data_storage import verify_offer_exists_in_db
 
     page = requests.post(url_with_params[0], url_with_params[1])
     print(page.status_code)
@@ -34,7 +34,7 @@ def get_offer_details(url_with_params):
 
         offer_url = offer.find("a", class_="marginright5 link linkWithHash detailsLink").attrs['href']
         offer_main_area = []
-        if verify_offer_exists_in_storage(data_id):
+        if verify_offer_exists_in_db(data_id):
             offer_details = {}
             pass
         else:

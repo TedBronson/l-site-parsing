@@ -7,7 +7,7 @@ import config as cfg
 # TODO: get exact address from a map
 # TODO: gather list of districts, categories for search
 # TODO: separate data storage in separate function
-from Data_storage import write_to_csv, verify_offer_exists_in_storage
+from Data_storage import write_to_db, verify_offer_exists_in_db
 
 
 def main():
@@ -45,11 +45,11 @@ def update_offer_record(list_of_offers):
     """
     for offer in list_of_offers:
         data_id = offer[0]
-        if verify_offer_exists_in_storage(data_id):
+        if verify_offer_exists_in_db(data_id):
             print('Offer is already in storage')
             print(data_id)
         else:  # elif verify_price_is_primary(offer):
-            write_to_csv(offer)
+            write_to_db(offer)
 
 
 main()

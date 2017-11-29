@@ -4,3 +4,4 @@
 requirements.txt
 offers.csv
 *config.py
+offers.db
