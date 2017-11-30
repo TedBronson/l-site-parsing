@@ -14,6 +14,7 @@ def main():
     list_of_offers = parse_offers()
     for offer in list_of_offers:
         update_offer_record(Offer.get_offer_details(offer))
+        print("-----")
 
 
 def parse_offers():
@@ -21,7 +22,7 @@ def parse_offers():
     currencies_list = cfg.currencies_list
     for currency in currencies_list:
         post_request_offers = request_composition.compose_request(currency) # Creates URL request with city, category and other params
-        for current_page in range(cfg.limit_search_pages):
+        for current_page in range(cfg.search_pages_lower_limit, cfg.search_pages_upper_limit):
             post_request_offers[1]['page'] = current_page
 
             page_list_of_offers = Offer.get_list_of_offers(post_request_offers) # Parses offers from all pages in a range

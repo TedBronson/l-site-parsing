@@ -12,6 +12,7 @@ def get_list_of_offers(url_with_params):
     :return:
     """
     page = requests.post(url_with_params[0], url_with_params[1])
+    print("Search request resulted in code: ", page.status_code)
     page = page.text
     soup = BeautifulSoup(page, "html.parser")
     offers = soup.find_all("td", class_="offer")
@@ -64,8 +65,21 @@ def get_offer_details(offer):
         except KeyError:
             floors_in_house = ''
 
+        try:
+            living_area = offer_details['Жилая площадь']
+        except KeyError:
+            living_area = ''
+
+        try:
+            kitchen_area = offer_details['Площадь кухни']
+        except KeyError:
+            kitchen_area = ''
+
+
+
         list_of_offer_details.append(
-            [data_id, offer_price, offer_main_area, number_of_rooms, floor, floors_in_house, date, offer_title])
+            [data_id, offer_price, offer_main_area, number_of_rooms, floor, floors_in_house, date, offer_title,
+             living_area, kitchen_area])
 
         return list_of_offer_details
     else:
