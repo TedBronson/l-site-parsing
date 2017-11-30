@@ -16,7 +16,6 @@ def write_to_db(offer_string):
         c.execute('INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?)', x)
         conn.commit()
         conn.close()
-        print('New offer has been added')
     except Exception as detail:
         print(detail)
 
@@ -31,7 +30,7 @@ def verify_offer_exists_in_db(data_id):
     try:
         conn = sqlite3.connect("D:\Projects\l-site-parsing\offers.db")
         c = conn.cursor()
-        if c.execute('select count(1) from offers where olx_id = (?)', (data_id,)) == 1:
+        if c.execute('select count(1) from offers where olx_id = (?)', (data_id,)).fetchone() == (1,):
             conn.commit()
             conn.close()
             return True

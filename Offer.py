@@ -12,7 +12,6 @@ def get_list_of_offers(url_with_params):
     :return:
     """
     page = requests.post(url_with_params[0], url_with_params[1])
-    print(page.status_code)
     page = page.text
     soup = BeautifulSoup(page, "html.parser")
     offers = soup.find_all("td", class_="offer")
@@ -23,50 +22,54 @@ def get_list_of_offers(url_with_params):
 def get_offer_details(offer):
     list_of_offer_details = []
     data_id = offer.table["data-id"]  # Get id of an offer
-    offer_title = offer.find("a",
-                             class_="marginright5 link linkWithHash detailsLink").strong.string  # too specific.
-    #  Should make class more general
-    offer_price = offer.find("p", class_="price").strong.string  # TODO: удалить валюту, добавить её в отдельную ячейку
-    try:
-        offer_price = re.sub(' грн.', '', offer_price)  # TODO: replace it with adding UAH in separate column
-        offer_price = re.sub(' ', '', offer_price)
-    except Exception:
-        pass
+    if not verify_offer_exists_in_db(data_id):
+        offer_title = offer.find("a",
+                                     class_="marginright5 link linkWithHash detailsLink").strong.string  # too specific.
+        #  Should make class more general
+        offer_price = offer.find("p", class_="price").strong.string  # TODO: удалить валюту, добавить её в отдельную ячейку
+        try:
+            offer_price = re.sub(' грн.', '', offer_price)  # TODO: replace it with adding UAH in separate column
+            offer_price = re.sub(' ', '', offer_price)
+        except Exception:
+            pass
 
-    offer_url = offer.find("a", class_="marginright5 link linkWithHash detailsLink").attrs['href']
-    offer_main_area = []
-    if verify_offer_exists_in_db(data_id):
-        offer_details = {}
-        pass
+        offer_url = offer.find("a", class_="marginright5 link linkWithHash detailsLink").attrs['href']
+        offer_main_area = []
+        if verify_offer_exists_in_db(data_id):
+            offer_details = {}
+            pass
+        else:
+            offer_details = get_details_from_offer_page(offer_url)
+
+        date = datetime.datetime.now().strftime("%Y-%m-%d")
+        link_to_offer = offer.find("a", class_="marginright5 link linkWithHash detailsLink")[
+            'href']  # Link to a page with the offer
+        try:
+            offer_main_area = offer_details['Общая площадь']
+        except KeyError:
+            offer_main_area = ''
+
+        try:
+            number_of_rooms = offer_details['Количество комнат']
+        except KeyError:
+            number_of_rooms = ''
+
+        try:
+            floor = offer_details['Этаж']
+        except KeyError:
+            floor = ''
+
+        try:
+            floors_in_house = offer_details['Этажность дома']
+        except KeyError:
+            floors_in_house = ''
+
+        list_of_offer_details.append(
+            [data_id, offer_price, offer_main_area, number_of_rooms, floor, floors_in_house, date, offer_title])
+
+        return list_of_offer_details
     else:
-        offer_details = get_details_from_offer_page(offer_url)
-
-    date = datetime.datetime.now().strftime("%Y-%m-%d")
-    link_to_offer = offer.find("a", class_="marginright5 link linkWithHash detailsLink")[
-        'href']  # Link to a page with the offer
-    try:
-        offer_main_area = offer_details['Общая площадь']
-    except KeyError:
-        offer_main_area = ''
-
-    try:
-        number_of_rooms = offer_details['Количество комнат']
-    except KeyError:
-        number_of_rooms = ''
-
-    try:
-        floor = offer_details['Этаж']
-    except KeyError:
-        floor = ''
-
-    try:
-        floors_in_house = offer_details['Этажность дома']
-    except KeyError:
-        floors_in_house = ''
-
-    list_of_offer_details.append([data_id, offer_price, offer_main_area, number_of_rooms, floor, floors_in_house, date, offer_title])
-
-    return list_of_offer_details
+        return list_of_offer_details
 
 
 

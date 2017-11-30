@@ -52,7 +52,6 @@ def update_offer_record(list_of_offers):
     for offer in list_of_offers:
         data_id = offer[0]
         if verify_offer_exists_in_db(data_id):
-            print('Offer is already in storage')
             print(data_id)
         else:  # elif verify_price_is_primary(offer):
             write_to_db(offer)
