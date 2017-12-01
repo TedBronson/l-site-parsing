@@ -2,9 +2,9 @@ import datetime
 import requests
 from bs4 import BeautifulSoup
 import re
-from Data_storage import verify_offer_exists_in_db
 import datetime
 import dateparser
+from Data_storage import verify_offer_exists_in_db
 
 
 def get_list_of_offers(url_with_params):
@@ -25,16 +25,24 @@ def get_list_of_offers(url_with_params):
 def get_offer_details(offer):
     list_of_offer_details = []
     data_id = offer.table["data-id"]  # Get id of an offer
-    if not verify_offer_exists_in_db(data_id):
+    offer_price = offer.find("p", class_="price").strong.string  # TODO: удалить валюту, добавить её в отдельную ячейку
+    if re.search(' грн.', offer_price):
+        currency = 'UAH'
+    elif re.search('$', offer_price):
+        currency = 'USD'
+    elif re.search('€', offer_price):
+        currency = 'EUR'
+    else:
+        currency = 'Unknown'
+    try:
+        offer_price = re.sub(' грн.|\$|\€', '', offer_price)  # TODO: replace it with adding UAH in separate column
+        offer_price = re.sub(' ', '', offer_price)
+    except Exception:
+        pass
+    if not verify_offer_exists_in_db(data_id) and verify_price_is_primary(offer_price):
         offer_title = offer.find("a",
                                      class_="marginright5 link linkWithHash detailsLink").strong.string  # too specific.
         #  Should make class more general
-        offer_price = offer.find("p", class_="price").strong.string  # TODO: удалить валюту, добавить её в отдельную ячейку
-        try:
-            offer_price = re.sub(' грн.', '', offer_price)  # TODO: replace it with adding UAH in separate column
-            offer_price = re.sub(' ', '', offer_price)
-        except Exception:
-            pass
 
         offer_url = offer.find("a", class_="marginright5 link linkWithHash detailsLink").attrs['href']
         offer_main_area = []
@@ -105,7 +113,7 @@ def get_offer_details(offer):
 
 
         list_of_offer_details.append(
-            [data_id, offer_price, offer_main_area, number_of_rooms, floor, floors_in_house, date, offer_title,
+            [data_id, offer_price, currency, offer_main_area, number_of_rooms, floor, floors_in_house, date, offer_title,
              living_area, kitchen_area, offer_from, apartment_type, house_type, district, offer_added_date])
 
         return list_of_offer_details
@@ -151,3 +159,14 @@ def get_details_from_offer_page(offer_url):
 
 
     return offer_details
+
+
+def verify_price_is_primary(offer_price):
+    """
+    Verifyes what currency is primary for particular offer. Does it by checking that last two digits are '00'.
+    :param offer_price:
+    :return:
+    """
+    if abs(int(offer_price)) % 100 == 00:
+        print(offer_price, " is primary price")
+        return True
