@@ -13,7 +13,7 @@ def write_to_db(offer_string):
         x = offer_string
         conn = sqlite3.connect("D:\Projects\l-site-parsing\offers.db")
         c = conn.cursor()
-        c.execute('INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', x)
+        c.execute('INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', x)
         conn.commit()
         conn.close()
         print("Offer has been added")

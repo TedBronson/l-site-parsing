@@ -60,11 +60,8 @@ def update_offer_record(list_of_offers):
     :return:
     """
     for offer in list_of_offers:
-        data_id = offer[0]
-        if verify_offer_exists_in_db(data_id):
-            print(data_id)
-        else:  # elif verify_price_is_primary(offer):
-            write_to_db(offer)
+        # elif verify_price_is_primary(offer):
+        write_to_db(offer)
 
 
 main()
