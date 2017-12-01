@@ -25,7 +25,7 @@ def get_list_of_offers(url_with_params):
 def get_offer_details(offer):
     list_of_offer_details = []
     data_id = offer.table["data-id"]  # Get id of an offer
-    offer_price = offer.find("p", class_="price").strong.string  # TODO: удалить валюту, добавить её в отдельную ячейку
+    offer_price = offer.find("p", class_="price").strong.string
     if re.search(' грн.', offer_price):
         currency = 'UAH'
     elif re.search('$', offer_price):
@@ -35,7 +35,7 @@ def get_offer_details(offer):
     else:
         currency = 'Unknown'
     try:
-        offer_price = re.sub(' грн.|\$|\€', '', offer_price)  # TODO: replace it with adding UAH in separate column
+        offer_price = re.sub(' грн.|\$|\€', '', offer_price)
         offer_price = re.sub(' ', '', offer_price)
     except Exception:
         pass
@@ -46,11 +46,7 @@ def get_offer_details(offer):
 
         offer_url = offer.find("a", class_="marginright5 link linkWithHash detailsLink").attrs['href']
         offer_main_area = []
-        if verify_offer_exists_in_db(data_id):
-            offer_details = {}
-            pass
-        else:
-            offer_details = get_details_from_offer_page(offer_url)
+        offer_details = get_details_from_offer_page(offer_url)
 
         date = datetime.datetime.now().strftime("%Y-%m-%d")
         link_to_offer = offer.find("a", class_="marginright5 link linkWithHash detailsLink")[

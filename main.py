@@ -12,6 +12,7 @@ from Data_storage import write_to_db
 
 def main():
     list_of_offers = parse_offers()
+    print("Number of offers parsed from search: ", len(list_of_offers))
     for offer in list_of_offers:
         update_offer_record(Offer.get_offer_details(offer))
         print("-----")
@@ -21,10 +22,8 @@ def parse_offers():
     list_of_offers = []
     currencies_list = cfg.currencies_list
     for currency in currencies_list:
-        print(currency)
         post_request_offers = request_composition.compose_request(currency) # Creates URL request with city, category and other params
         for current_page in range(cfg.search_pages_lower_limit, cfg.search_pages_upper_limit):
-            print(current_page)
             post_request_offers[1]['page'] = current_page
             page_list_of_offers = Offer.get_list_of_offers(post_request_offers)  # Parses offers from all pages in a range
             for offer in page_list_of_offers:
@@ -46,9 +45,14 @@ def update_offer_record(list_of_offers):
     :param list_of_offers:
     :return:
     """
+
     for offer in list_of_offers:
-        # elif verify_price_is_primary(offer):
         write_to_db(offer)
+        update_offer_record.counter += 1
+        print(update_offer_record.counter)
+
+
+update_offer_record.counter = 0
 
 
 main()

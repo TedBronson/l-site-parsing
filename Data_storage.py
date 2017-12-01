@@ -33,6 +33,8 @@ def verify_offer_exists_in_db(data_id):
             conn.commit()
             conn.close()
             print("This offer already exists in db")
+            verify_offer_exists_in_db.counter += 1
+            print("Количество проверок существования записей в базе: ", verify_offer_exists_in_db.counter)
             return True
         else:
             conn.commit()
@@ -40,3 +42,5 @@ def verify_offer_exists_in_db(data_id):
             return False
     except Exception as detail:
         print(detail)
+
+verify_offer_exists_in_db.counter = 0
