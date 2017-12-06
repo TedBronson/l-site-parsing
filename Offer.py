@@ -1,9 +1,9 @@
-import datetime
 import requests
 from bs4 import BeautifulSoup
 import re
 import datetime
 import dateparser
+import sys
 from Data_storage import verify_offer_exists_in_db
 
 
@@ -25,20 +25,9 @@ def get_list_of_offers(url_with_params):
 def get_offer_details(offer):
     list_of_offer_details = []
     data_id = offer.table["data-id"]  # Get id of an offer
-    offer_price = offer.find("p", class_="price").strong.string
-    if re.search(' грн.', offer_price):
-        currency = 'UAH'
-    elif re.search('$', offer_price):
-        currency = 'USD'
-    elif re.search('€', offer_price):
-        currency = 'EUR'
-    else:
-        currency = 'Unknown'
-    try:
-        offer_price = re.sub(' грн.|\$|\€', '', offer_price)
-        offer_price = re.sub(' ', '', offer_price)
-    except Exception:
-        pass
+    price_currency_tuple = split_price_currency(offer)
+    offer_price = price_currency_tuple[0]
+    currency = price_currency_tuple[1]
     if not verify_offer_exists_in_db(data_id) and verify_price_is_primary(offer_price):
         offer_title = offer.find("a",
                                      class_="marginright5 link linkWithHash detailsLink").strong.string  # too specific.
@@ -141,15 +130,14 @@ def get_details_from_offer_page(offer_url):
     try:
         district = re.sub('Харьков, Харьковская область, ', '', district)  # Hardcode for Харьков, Харьковская область only
     except Exception:
-        pass
+        sys.exit(0)
     offer_details['district'] = district
     offer_added_date = titlebox_details.em.get_text()
     try:
         offer_added_date = re.search('\d+ .*[7|8],', offer_added_date).group(0)  # This will work for 2017 and 2018
         offer_added_date = re.sub(',', '', offer_added_date)
-    except Exception as details:
-        print(details)
-        pass
+    except:
+        sys.exit(0)
     offer_added_date = dateparser.parse(offer_added_date, date_formats=['%d %B %Y'], languages=['ru']).strftime("%Y-%m-%d")
     offer_details['offer_added_date'] = offer_added_date
 
@@ -166,3 +154,22 @@ def verify_price_is_primary(offer_price):
     if abs(int(offer_price)) % 100 == 00:
         print(offer_price, " is primary price")
         return True
+
+
+def split_price_currency(offer):
+    offer_price = offer.find("p", class_="price").strong.string
+    if re.search(' грн.', offer_price):
+        currency = 'UAH'
+    elif re.search('$', offer_price):
+        currency = 'USD'
+    elif re.search('€', offer_price):
+        currency = 'EUR'
+    else:
+        currency = 'Unknown'
+    try:
+        offer_price = re.sub(' грн.|\$|€', '', offer_price)
+        offer_price = re.sub(' ', '', offer_price)
+    except Exception:
+        sys.exit(0)
+
+    return offer_price, currency
