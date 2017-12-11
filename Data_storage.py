@@ -38,3 +38,27 @@ def verify_offer_exists_in_db(data_id):
             return False
     except Exception as detail:
         print(detail)
+
+
+def write_offer_price(offer_id, price, currency):
+    """
+    Verifyes that offer with same data_id already exists in storage. Need to add more variables for verification
+    to allow multiple entries of same offer with different prices.
+    :param data_id:
+    :return:
+    """
+    try:
+        x = [offer_id, price]
+        conn = sqlite3.connect("D:\Projects\l-site-parsing\offers.db")
+        c = conn.cursor()
+        if currency == 'UAH':
+            c.execute('INSERT INTO offer_prices values(?, ?, NULL, NULL)', x)
+        elif currency == 'USD':
+            c.execute('INSERT INTO offer_prices values(?, NULL, ?, NULL)', x)
+        elif currency == 'EUR':
+            c.execute('INSERT INTO offer_prices values(?, NULL, NULL, ?)', x)
+
+        conn.commit()
+        conn.close()
+    except Exception as detail:
+        print(detail)

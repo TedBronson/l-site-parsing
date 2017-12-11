@@ -1,7 +1,7 @@
 import Offer
 import config as cfg
 import request_composition
-from Data_storage import write_to_db
+from Data_storage import write_to_db, write_offer_price
 
 
 # TODO: compare prices of a same listing
@@ -47,6 +47,7 @@ def update_offer_record(list_of_offers):
 
     for offer in list_of_offers:
         write_to_db(offer)
+        write_offer_price(offer[0],offer[1],offer[2])
 
 
 main()
