@@ -15,7 +15,6 @@ def main():
     print("Number of offers parsed from search: ", len(list_of_offers))
     for offer in list_of_offers:
         update_offer_record(Offer.get_offer_details(offer))
-        print("-----")
 
 
 def parse_offers():
@@ -48,11 +47,6 @@ def update_offer_record(list_of_offers):
 
     for offer in list_of_offers:
         write_to_db(offer)
-        update_offer_record.counter += 1
-        print(update_offer_record.counter)
-
-
-update_offer_record.counter = 0
 
 
 main()
