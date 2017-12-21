@@ -1,6 +1,7 @@
 import Offer
 import config as cfg
 import request_composition
+import time
 from Data_storage import write_to_db, write_offer_price
 
 
@@ -50,4 +51,6 @@ def update_offer_record(list_of_offers):
         write_offer_price(offer[0],offer[1],offer[2])
 
 
+start_time = time.time()
 main()
+print("--- %s seconds ---" % (time.time() - start_time))

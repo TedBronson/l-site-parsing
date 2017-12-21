@@ -6,7 +6,6 @@ import dateparser
 import sys
 from Data_storage import verify_offer_exists_in_db
 
-# TODO: сохранять все три цены в отдельную табличку для каждого обновления.
 
 def get_list_of_offers(url_with_params):
     """

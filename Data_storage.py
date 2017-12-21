@@ -52,12 +52,9 @@ def write_offer_price(offer_id, price, currency):
         conn = sqlite3.connect("D:\Projects\l-site-parsing\offers.db")
         c = conn.cursor()
         if currency == 'UAH':
-            c.execute('INSERT INTO offer_prices values(?, ?, NULL, NULL)', x)
+            c.execute('INSERT INTO offer_prices values(?, ?, NULL)', x)
         elif currency == 'USD':
-            c.execute('INSERT INTO offer_prices values(?, NULL, ?, NULL)', x)
-        elif currency == 'EUR':
-            c.execute('INSERT INTO offer_prices values(?, NULL, NULL, ?)', x)
-
+            c.execute('INSERT INTO offer_prices values(?, NULL, ?)', x)
         conn.commit()
         conn.close()
     except Exception as detail:

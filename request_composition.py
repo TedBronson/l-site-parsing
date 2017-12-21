@@ -11,7 +11,7 @@ def compose_request(currency):
     :param currency: string. is empty for Hryvnya
     :return:
     """
-    city_id = 280
+    city_id = cities['Kharkiv']
     region_id = 8
     district_id = ''
     distance = 0  # Search distance from a point
