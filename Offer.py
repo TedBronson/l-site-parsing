@@ -107,6 +107,11 @@ def get_offer_details(offer):
 
 
 def get_details_from_offer_page(offer_url):
+    '''
+    TODO: Add verification that page with search exists.
+    :param offer_url:
+    :return:
+    '''
     page = requests.get(offer_url)
     page = page.text
     soup = BeautifulSoup(page, "html.parser")
