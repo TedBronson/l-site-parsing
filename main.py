@@ -28,14 +28,6 @@ def parse_offers():
             page_list_of_offers = Offer.get_list_of_offers(post_request_offers)  # Parses offers from all pages in a range
             for offer in page_list_of_offers:
                 list_of_offers.append(offer)  # Parses offers from all pages in a range
-        """
-        This will only search one random page. This is for debugging/testing/developing purposes.
-        """
-        # post_request_offers[1]['page'] = random.randrange(cfg.search_pages_lower_limit, cfg.search_pages_upper_limit)
-        # print("Search page # is: ", post_request_offers[1]['page'])
-        # page_list_of_offers = Offer.get_list_of_offers(post_request_offers)  # Parses offers from all pages in a range
-        # for offer in page_list_of_offers:
-        #     list_of_offers.append(offer)  # Parses offers from all pages in a range
     return list_of_offers
 
 

@@ -116,7 +116,9 @@ def get_details_from_offer_page(offer_url):
     page = page.text
     soup = BeautifulSoup(page, "html.parser")
     offer_details = {}
+    # try:
     offer_details_table = soup.find("table", attrs={'class': 'details'})
+    # except NotImplementedError
     all_detail_tables = offer_details_table.find_all("table", attrs={'class': 'item'})
     for detail in all_detail_tables:
         detail_name = detail.find("th").string
