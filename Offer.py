@@ -95,11 +95,14 @@ def get_offer_details(offer):
         except KeyError:
             offer_added_date = ''
 
-
+        try:
+            offer_text = offer_details['text']
+        except KeyError:
+            offer_added_date = ''
 
         list_of_offer_details.append(
             [data_id, offer_price, currency, offer_main_area, number_of_rooms, floor, floors_in_house, date, offer_title,
-             living_area, kitchen_area, offer_from, apartment_type, house_type, district, offer_added_date])
+             living_area, kitchen_area, offer_from, apartment_type, house_type, district, offer_added_date, offer_text])
 
         return list_of_offer_details
     else:
@@ -147,6 +150,7 @@ def get_details_from_offer_page(offer_url):
         sys.exit(0)
     offer_added_date = dateparser.parse(offer_added_date, date_formats=['%d %B %Y'], languages=['ru']).strftime("%Y-%m-%d")
     offer_details['offer_added_date'] = offer_added_date
+    offer_details['text'] = soup.find("div", attrs={'id': 'textContent'}).p.get_text("|", strip=True)
 
 
     return offer_details

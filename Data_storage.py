@@ -13,7 +13,7 @@ def write_to_db(offer_string):
         x = offer_string
         conn = sqlite3.connect(config.db_file_path)
         c = conn.cursor()
-        c.execute('INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', x)
+        c.execute('INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', x)
         conn.commit()
         conn.close()
     except Exception as detail:
