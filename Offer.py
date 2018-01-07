@@ -28,85 +28,77 @@ def get_offer_details(offer):
     price_currency_tuple = split_price_currency(offer)
     offer_price = price_currency_tuple[0]
     currency = price_currency_tuple[1]
-    if not verify_offer_exists_in_db(data_id) and verify_price_is_primary(offer_price):
-        offer_title = offer.find("a",
-                                     class_="marginright5 link linkWithHash detailsLink").strong.string  # too specific.
-        #  Should make class more general
-
-        offer_url = offer.find("a", class_="marginright5 link linkWithHash detailsLink").attrs['href']
-        offer_main_area = []
-        offer_details = get_details_from_offer_page(offer_url)
-
-        date = datetime.datetime.now().strftime("%Y-%m-%d")
-        link_to_offer = offer.find("a", class_="marginright5 link linkWithHash detailsLink")[
-            'href']  # Link to a page with the offer
-        try:
-            offer_main_area = offer_details['Общая площадь']
-        except KeyError:
-            offer_main_area = ''
-
-        try:
-            number_of_rooms = offer_details['Количество комнат']
-        except KeyError:
-            number_of_rooms = ''
-
-        try:
-            floor = offer_details['Этаж']
-        except KeyError:
-            floor = ''
-
-        try:
-            floors_in_house = offer_details['Этажность дома']
-        except KeyError:
-            floors_in_house = ''
-
-        try:
-            living_area = offer_details['Жилая площадь']
-        except KeyError:
-            living_area = ''
-
-        try:
-            kitchen_area = offer_details['Площадь кухни']
-        except KeyError:
-            kitchen_area = ''
-
-        try:
-            offer_from = offer_details['Объявление от']
-        except KeyError:
-            offer_from = ''
-
-        try:
-            apartment_type = offer_details['Тип квартиры']
-        except KeyError:
-            apartment_type = ''
-
-        try:
-            house_type = offer_details['Тип']
-        except KeyError:
-            house_type = ''
-
-        try:
-            district = offer_details['district']
-        except KeyError:
-            district = ''
-
-        try:
-            offer_added_date = offer_details['offer_added_date']
-        except KeyError:
-            offer_added_date = ''
-
-        try:
-            offer_text = offer_details['text']
-        except KeyError:
-            offer_added_date = ''
-
-        list_of_offer_details.append(
-            [data_id, offer_price, currency, offer_main_area, number_of_rooms, floor, floors_in_house, date, offer_title,
-             living_area, kitchen_area, offer_from, apartment_type, house_type, district, offer_added_date, offer_text])
-
+    if not verify_offer_exists_in_db(data_id):
+        extended_offer_details(currency, data_id, list_of_offer_details, offer, offer_price)
+        return list_of_offer_details
+    elif verify_offer_exists_in_db(data_id) and currency == 'UAH' and verify_price_is_primary(offer_price):
+        extended_offer_details(currency, data_id, list_of_offer_details, offer, offer_price)
         return list_of_offer_details
     else:
         return list_of_offer_details
+
+
+def extended_offer_details(currency, data_id, list_of_offer_details, offer, offer_price):
+    offer_title = offer.find("a",
+                             class_="marginright5 link linkWithHash detailsLink").strong.string  # too specific.
+    #  Should make class more general
+    offer_url = offer.find("a", class_="marginright5 link linkWithHash detailsLink").attrs['href']
+    offer_main_area = []
+    offer_details = get_details_from_offer_page(offer_url)
+    date = datetime.datetime.now().strftime("%Y-%m-%d")
+    link_to_offer = offer.find("a", class_="marginright5 link linkWithHash detailsLink")[
+        'href']  # Link to a page with the offer
+    try:
+        offer_main_area = offer_details['Общая площадь']
+    except KeyError:
+        offer_main_area = ''
+    try:
+        number_of_rooms = offer_details['Количество комнат']
+    except KeyError:
+        number_of_rooms = ''
+    try:
+        floor = offer_details['Этаж']
+    except KeyError:
+        floor = ''
+    try:
+        floors_in_house = offer_details['Этажность дома']
+    except KeyError:
+        floors_in_house = ''
+    try:
+        living_area = offer_details['Жилая площадь']
+    except KeyError:
+        living_area = ''
+    try:
+        kitchen_area = offer_details['Площадь кухни']
+    except KeyError:
+        kitchen_area = ''
+    try:
+        offer_from = offer_details['Объявление от']
+    except KeyError:
+        offer_from = ''
+    try:
+        apartment_type = offer_details['Тип квартиры']
+    except KeyError:
+        apartment_type = ''
+    try:
+        house_type = offer_details['Тип']
+    except KeyError:
+        house_type = ''
+    try:
+        district = offer_details['district']
+    except KeyError:
+        district = ''
+    try:
+        offer_added_date = offer_details['offer_added_date']
+    except KeyError:
+        offer_added_date = ''
+    try:
+        offer_text = offer_details['text']
+    except KeyError:
+        offer_text = ''
+    list_of_offer_details.append(
+        [data_id, offer_price, currency, offer_main_area, number_of_rooms, floor, floors_in_house, date, offer_title,
+         living_area, kitchen_area, offer_from, apartment_type, house_type, district, offer_added_date, offer_text])
 
 
 def get_details_from_offer_page(offer_url):

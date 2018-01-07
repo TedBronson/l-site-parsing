@@ -18,6 +18,7 @@ def main():
     print("Number of offers parsed from search: ", len(list_of_offers))
     for offer in list_of_offers:
         update_offer_record(Offer.get_offer_details(offer))
+        print("----------------------")
 
 
 def parse_offers():
@@ -42,7 +43,6 @@ def update_offer_record(list_of_offers):
 
     for offer in list_of_offers:
         write_to_db(offer)
-        write_offer_price(offer[0],offer[1],offer[2])
 
 
 start_time = time.time()
