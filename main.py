@@ -2,7 +2,7 @@ import Offer
 import config as cfg
 import request_composition
 import time
-from Data_storage import write_to_db, write_offer_price
+from Data_storage import write_to_db
 
 
 # TODO: compare prices of a same listing
