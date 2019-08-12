@@ -5,3 +5,4 @@ requirements.txt
 offers.csv
 *config.py
 /venv/*
+/venv37/*
