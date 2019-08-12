@@ -17,7 +17,7 @@ def compose_request(currency):
     distance = 0  # Search distance from a point
     number_of_rooms_from = 1
     number_of_rooms_to = 5
-    category_id = 13  # Продажа квартир
+    category_id = 1600  # Продажа квартир
 
     search_request = "https://www.olx.ua/ajax/kharkov/search/list/"
     request_parameters = {'search[city_id]': city_id,
