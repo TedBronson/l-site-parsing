@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 import config
 
@@ -16,10 +17,10 @@ def write_to_db(offer_string):
         c = conn.cursor()
         if not verify_offer_exists_in_db(offer_olx_id):
             c.execute('INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', x)
-            print("Added new offer with values: ", x[1], x[2])
+            logging.info("Added new offer with values: ", x[1], x[2])
         else:
             c.execute('UPDATE offers SET price = ?, currency = ? WHERE olx_id == ?', (x[1], x[2], x[0]))
-            print("updated offer price with values: ", x[1], x[2])
+            logging.info("updated offer price with values: ", x[1], x[2])
         conn.commit()
         conn.close()
     except Exception as detail:

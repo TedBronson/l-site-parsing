@@ -1,8 +1,12 @@
+import logging
+
 import Offer
 import config as cfg
 import request_composition
 import time
 from Data_storage import write_to_db
+
+logging.basicConfig(level=logging.INFO)
 
 
 # TODO: compare prices of a same listing
@@ -15,10 +19,9 @@ from Data_storage import write_to_db
 
 def main():
     list_of_offers = parse_offers()
-    print("Number of offers parsed from search: ", len(list_of_offers))
+    logging.info("Number of offers parsed from search: {}".format(len(list_of_offers)))
     for offer in list_of_offers:
         update_offer_record(Offer.get_offer_details(offer))
-        print("----------------------")
 
 
 def parse_offers():
@@ -26,6 +29,7 @@ def parse_offers():
     currencies_list = cfg.currencies_list
     for currency in currencies_list:
         post_request_offers = request_composition.compose_request(currency) # Creates URL request with city, category and other params
+        logging.info("Request URL: ".format(post_request_offers))
         for current_page in range(cfg.search_pages_lower_limit, cfg.search_pages_upper_limit):
             post_request_offers[1]['page'] = current_page
             page_list_of_offers = Offer.get_list_of_offers(post_request_offers)  # Parses offers from all pages in a range
@@ -47,4 +51,4 @@ def update_offer_record(list_of_offers):
 
 start_time = time.time()
 main()
-print("--- %s seconds ---" % (time.time() - start_time))
+logging.info("--- Process finished in %s seconds ---".format(time.time() - start_time))

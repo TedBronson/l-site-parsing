@@ -1,3 +1,5 @@
+import logging
+
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -14,7 +16,7 @@ def get_list_of_offers(url_with_params):
     :return:
     """
     page = requests.post(url_with_params[0], url_with_params[1])
-    print("Search request resulted in code: ", page.status_code)
+    logging.info( "Search request resulted in code: ", page.status_code)
     page = page.text
     soup = BeautifulSoup(page, "html.parser")
     offers = soup.find_all("td", class_="offer")
@@ -102,11 +104,11 @@ def extended_offer_details(currency, data_id, list_of_offer_details, offer, offe
 
 
 def get_details_from_offer_page(offer_url):
-    '''
+    """
     TODO: Add verification that page with search exists.
     :param offer_url:
     :return:
-    '''
+    """
     page = requests.get(offer_url)
     page = page.text
     soup = BeautifulSoup(page, "html.parser")
@@ -131,15 +133,15 @@ def get_details_from_offer_page(offer_url):
     district = titlebox_details.a.strong.string
     try:
         district = re.sub('Харьков, Харьковская область, ', '', district)  # Hardcode for Харьков, Харьковская область only
-    except Exception:
-        sys.exit(0)
+    except Exception as detail:
+        print(detail)
     offer_details['district'] = district
     offer_added_date = titlebox_details.em.get_text()
     try:
-        offer_added_date = re.search('\d+ .*[7|8],', offer_added_date).group(0)  # This will work for 2017 and 2018
+        offer_added_date = re.search('\d+ .*[7|8|9],', offer_added_date).group(0)  # This will work for 2017 and 2018 #TODO: this is stupid, should not depend on year last digit
         offer_added_date = re.sub(',', '', offer_added_date)
-    except:
-        sys.exit(0)
+    except Exception as detail:
+        print(detail)
     offer_added_date = dateparser.parse(offer_added_date, date_formats=['%d %B %Y'], languages=['ru']).strftime("%Y-%m-%d")
     offer_details['offer_added_date'] = offer_added_date
     offer_details['text'] = soup.find("div", attrs={'id': 'textContent'}).p.get_text("|", strip=True)
@@ -171,7 +173,7 @@ def split_price_currency(offer):
     try:
         offer_price = re.sub(' грн.|\$|€', '', offer_price)
         offer_price = re.sub(' ', '', offer_price)
-    except Exception:
-        sys.exit(0)
+    except Exception as detail:
+        print(detail)
 
     return offer_price, currency
