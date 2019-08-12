@@ -1,9 +1,9 @@
 import logging
+import time
 
 import Offer
 import config as cfg
 import request_composition
-import time
 from Data_storage import write_to_db
 
 logging.basicConfig(level=logging.INFO)
@@ -28,11 +28,16 @@ def parse_offers():
     list_of_offers = []
     currencies_list = cfg.currencies_list
     for currency in currencies_list:
-        post_request_offers = request_composition.compose_request(currency) # Creates URL request with city, category and other params
+        # Creates URL request with city, category and other params
+        post_request_offers = request_composition.compose_request(currency)
         logging.info("Request URL: ".format(post_request_offers))
-        for current_page in range(cfg.search_pages_lower_limit, cfg.search_pages_upper_limit):
-            post_request_offers[1]['page'] = current_page
-            page_list_of_offers = Offer.get_list_of_offers(post_request_offers)  # Parses offers from all pages in a range
+        for current_page in range(
+            cfg.search_pages_lower_limit, cfg.search_pages_upper_limit
+        ):
+            post_request_offers[1]["page"] = current_page
+            page_list_of_offers = Offer.get_list_of_offers(
+                post_request_offers
+            )  # Parses offers from all pages in a range
             for offer in page_list_of_offers:
                 list_of_offers.append(offer)  # Parses offers from all pages in a range
     return list_of_offers

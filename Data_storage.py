@@ -1,8 +1,10 @@
 import logging
 import sqlite3
+
 import config
 
 # TODO: move db file path into config
+
 
 def write_to_db(offer_string):
     """
@@ -16,10 +18,16 @@ def write_to_db(offer_string):
         conn = sqlite3.connect(config.db_file_path)
         c = conn.cursor()
         if not verify_offer_exists_in_db(offer_olx_id):
-            c.execute('INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', x)
+            c.execute(
+                "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                x,
+            )
             logging.info("Added new offer with values: ", x[1], x[2])
         else:
-            c.execute('UPDATE offers SET price = ?, currency = ? WHERE olx_id == ?', (x[1], x[2], x[0]))
+            c.execute(
+                "UPDATE offers SET price = ?, currency = ? WHERE olx_id == ?",
+                (x[1], x[2], x[0]),
+            )
             logging.info("updated offer price with values: ", x[1], x[2])
         conn.commit()
         conn.close()
@@ -37,7 +45,9 @@ def verify_offer_exists_in_db(data_id):
     try:
         conn = sqlite3.connect(config.db_file_path)
         c = conn.cursor()
-        if c.execute('select count(1) from offers where olx_id = (?)', (data_id,)).fetchone() == (1,):
+        if c.execute(
+            "select count(1) from offers where olx_id = (?)", (data_id,)
+        ).fetchone() == (1,):
             conn.commit()
             conn.close()
             return True
