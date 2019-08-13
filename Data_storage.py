@@ -13,22 +13,21 @@ def write_to_db(offer_string):
     :return:
     """
     try:
-        x = offer_string
-        offer_olx_id = x[0]
+        offer_olx_id = offer_string[0]
         conn = sqlite3.connect(config.db_file_path)
         c = conn.cursor()
         if not verify_offer_exists_in_db(offer_olx_id):
             c.execute(
                 "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                x,
+                offer_string,
             )
-            logging.info("Added new offer with values: ", x[1], x[2])
+            logging.info("Added new offer with values: ", offer_string[1], offer_string[2])
         else:
             c.execute(
                 "UPDATE offers SET price = ?, currency = ? WHERE olx_id == ?",
-                (x[1], x[2], x[0]),
+                (offer_string[1], offer_string[2], offer_string[0]),
             )
-            logging.info("updated offer price with values: ", x[1], x[2])
+            logging.info("updated offer price with values: ", offer_string[1], offer_string[2])
         conn.commit()
         conn.close()
     except Exception as detail:
