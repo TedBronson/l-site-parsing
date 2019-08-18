@@ -16,7 +16,7 @@ def get_list_of_offers(url_with_params):
     :return:
     """
     page = requests.post(url_with_params[0], url_with_params[1])
-    logging.info("Search request resulted in code: ", page.status_code)
+    logging.info("Search request resulted in code: {}".format(page.status_code))
     page = page.text
     soup = BeautifulSoup(page, "html.parser")
     offers = soup.find_all("td", class_="offer")
@@ -25,23 +25,28 @@ def get_list_of_offers(url_with_params):
 
 
 def get_offer_details(offer):
+    """
+
+    :param offer: BeatifulSoup object. Has string 'text' attribute that contains text of an offer.
+    :return:
+    """
     list_of_offer_details = []
     data_id = offer.table["data-id"]  # Get id of an offer
     price_currency_tuple = split_price_currency(offer)
     offer_price = price_currency_tuple[0]
     currency = price_currency_tuple[1]
-    if not verify_offer_exists_in_db(data_id):
+    if not verify_offer_exists_in_db(olx_offer_id):
         extended_offer_details(
-            currency, data_id, list_of_offer_details, offer, offer_price
+            currency, olx_offer_id, list_of_offer_details, offer, offer_price
         )
         return list_of_offer_details
     elif (
-        verify_offer_exists_in_db(data_id)
+        verify_offer_exists_in_db(olx_offer_id)
         and currency == "UAH"
         and verify_price_is_primary(offer_price)
     ):
         extended_offer_details(
-            currency, data_id, list_of_offer_details, offer, offer_price
+            currency, olx_offer_id, list_of_offer_details, offer, offer_price
         )
         return list_of_offer_details
     else:
@@ -168,6 +173,7 @@ def get_details_from_offer_page(offer_url):
                 pass
             offer_details[detail_name] = detail_value
     titlebox_details = soup.find("div", attrs={"class": "offer-titlebox__details"})
+    # Get district name
     district = titlebox_details.a.strong.string
     try:
         district = re.sub(
@@ -176,6 +182,7 @@ def get_details_from_offer_page(offer_url):
     except Exception as detail:
         print(detail)
     offer_details["district"] = district
+    # Get offer added date and format it
     offer_added_date = titlebox_details.em.get_text()
     try:
         offer_added_date = re.search("\d+ .*[7|8|9],", offer_added_date).group(
@@ -188,7 +195,7 @@ def get_details_from_offer_page(offer_url):
         offer_added_date, date_formats=["%d %B %Y"], languages=["ru"]
     ).strftime("%Y-%m-%d")
     offer_details["offer_added_date"] = offer_added_date
-    offer_details["text"] = soup.find("div", attrs={"id": "textContent"}).p.get_text(
+    offer_details["text"] = soup.find("div", attrs={"id": "textContent"}).get_text(
         "|", strip=True
     )
 
@@ -206,6 +213,7 @@ def verify_price_is_primary(offer_price):
 
 
 def split_price_currency(offer):
+    #TODO: replace with input of a string. Parsing shoould be separated.
     offer_price = offer.find("p", class_="price").strong.string
     if re.search(" грн.", offer_price):
         currency = "UAH"
