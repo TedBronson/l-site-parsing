@@ -75,54 +75,18 @@ def extended_offer_details(
     )[
         "href"
     ]  # Link to a page with the offer
-    try:
-        offer_main_area = offer_details["Общая площадь"]
-    except KeyError:
-        offer_main_area = ""
-    try:
-        number_of_rooms = offer_details["Количество комнат"]
-    except KeyError:
-        number_of_rooms = ""
-    try:
-        floor = offer_details["Этаж"]
-    except KeyError:
-        floor = ""
-    try:
-        floors_in_house = offer_details["Этажность дома"]
-    except KeyError:
-        floors_in_house = ""
-    try:
-        living_area = offer_details["Жилая площадь"]
-    except KeyError:
-        living_area = ""
-    try:
-        kitchen_area = offer_details["Площадь кухни"]
-    except KeyError:
-        kitchen_area = ""
-    try:
-        offer_from = offer_details["Объявление от"]
-    except KeyError:
-        offer_from = ""
-    try:
-        apartment_type = offer_details["Тип квартиры"]
-    except KeyError:
-        apartment_type = ""
-    try:
-        house_type = offer_details["Тип"]
-    except KeyError:
-        house_type = ""
-    try:
-        district = offer_details["district"]
-    except KeyError:
-        district = ""
-    try:
-        offer_added_date = offer_details["offer_added_date"]
-    except KeyError:
-        offer_added_date = ""
-    try:
-        offer_text = offer_details["text"]
-    except KeyError:
-        offer_text = ""
+    offer_main_area = offer_details.get("Общая площадь", "")
+    number_of_rooms = offer_details.get("Количество комнат", "")
+    floor = offer_details.get("Этаж", "")
+    floors_in_house = offer_details.get("Этажность дома", "")
+    living_area = offer_details.get("Жилая площадь", "")
+    kitchen_area = offer_details.get("Площадь кухни", "")
+    offer_from = offer_details.get("Объявление от", "")
+    apartment_type = offer_details.get("Тип дома", "")
+    house_type = offer_details.get("Тип стен", "")
+    district = offer_details.get("district", "")
+    offer_added_date = offer_details.get("offer_added_date", "")
+    offer_text = offer_details.get("text", "")
     list_of_offer_details.append(
         [
             data_id,
