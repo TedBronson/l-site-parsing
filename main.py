@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main():
+    # Parse offers according to limitations set in config file and in request composition.py and create a list with results
     list_of_offers = parse_offers()
     logging.info("Number of offers parsed from search: {}".format(len(list_of_offers)))
     for offer in list_of_offers:
@@ -30,16 +31,15 @@ def parse_offers():
     for currency in currencies_list:
         # Creates URL request with city, category and other params
         post_request_offers = request_composition.compose_request(currency)
-        logging.info("Request URL: ".format(post_request_offers))
         for current_page in range(
             cfg.search_pages_lower_limit, cfg.search_pages_upper_limit
         ):
             post_request_offers[1]["page"] = current_page
             page_list_of_offers = Offer.get_list_of_offers(
                 post_request_offers
-            )  # Parses offers from all pages in a range
+            )  # Parses offers from a page
             for offer in page_list_of_offers:
-                list_of_offers.append(offer)  # Parses offers from all pages in a range
+                list_of_offers.append(offer)  # Parses offers from all pages in a range and creates list
     return list_of_offers
 
 
@@ -56,4 +56,4 @@ def update_offer_record(list_of_offers):
 
 start_time = time.time()
 main()
-logging.info("--- Process finished in %s seconds ---".format(time.time() - start_time))
+logging.info("--- Process finished in {} seconds ---".format(time.time() - start_time))
