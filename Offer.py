@@ -31,7 +31,11 @@ def get_offer_details(offer):
     :return:
     """
     list_of_offer_details = []
-    data_id = offer.table["data-id"]  # Get id of an offer
+    try:
+        olx_offer_id = offer.table["data-id"]  # Get id of an offer
+    except TypeError:
+        logging.info("Invalid element has been parsed as offer")
+        return list_of_offer_details
     price_currency_tuple = split_price_currency(offer)
     offer_price = price_currency_tuple[0]
     currency = price_currency_tuple[1]
