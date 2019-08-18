@@ -21,13 +21,22 @@ def write_to_db(offer_string):
                 "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 offer_string,
             )
-            logging.info("Added new offer with values: ", offer_string[1], offer_string[2])
+            logging.info(
+                "Added new offer with id: {}. Price: {} {}".format(
+                    offer_string[0], offer_string[1], offer_string[2]
+                )
+            )
         else:
             c.execute(
                 "UPDATE offers SET price = ?, currency = ? WHERE olx_id == ?",
                 (offer_string[1], offer_string[2], offer_string[0]),
             )
-            logging.info("updated offer price with values: ", offer_string[1], offer_string[2])
+            # TODO: Show previous price too
+            logging.info(
+                "updated offer with id: {}. Price: {} {}".format(
+                    offer_string[0], offer_string[1], offer_string[2]
+                )
+            )
         conn.commit()
         conn.close()
     except Exception as detail:
