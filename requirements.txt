@@ -15,3 +15,6 @@ six==1.11.0
 toml==0.10.0
 tzlocal==1.5.1
 urllib3==1.22
+pandas
+matplotlib
+numpy
