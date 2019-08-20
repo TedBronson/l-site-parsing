@@ -153,9 +153,9 @@ def get_details_from_offer_page(offer_url):
     # Get offer added date and format it
     offer_added_date = titlebox_details.em.get_text()
     try:
-        offer_added_date = re.search("\d+ .*[7|8|9],", offer_added_date).group(
+        offer_added_date = re.search("\d+ .*,", offer_added_date).group(
             0
-        )  # This will work for 2017 and 2018 #TODO: this is stupid, should not depend on year last digit
+        )
         offer_added_date = re.sub(",", "", offer_added_date)
     except Exception as detail:
         print(detail)
