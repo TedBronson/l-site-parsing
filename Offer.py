@@ -1,11 +1,10 @@
 import logging
-
 import requests
 from bs4 import BeautifulSoup
 import re
 import datetime
 import dateparser
-import sys
+
 from Data_storage import verify_offer_exists_in_db
 
 
@@ -44,15 +43,16 @@ def get_offer_details(offer):
             currency, olx_offer_id, list_of_offer_details, offer, offer_price
         )
         return list_of_offer_details
-    elif (
-        verify_offer_exists_in_db(olx_offer_id)
-        and currency == "UAH"
-        and verify_price_is_primary(offer_price)
-    ):
-        extended_offer_details(
-            currency, olx_offer_id, list_of_offer_details, offer, offer_price
-        )
-        return list_of_offer_details
+    # Purpose of this clause is unclear
+    # elif (
+    #     verify_offer_exists_in_db(olx_offer_id)
+    #     and currency == "UAH"
+    #     and verify_price_is_primary(offer_price)
+    # ):
+    #     extended_offer_details(
+    #         currency, olx_offer_id, list_of_offer_details, offer, offer_price
+    #     )
+    #     return list_of_offer_details
     else:
         return list_of_offer_details
 
@@ -67,7 +67,6 @@ def extended_offer_details(
     offer_url = offer.find(
         "a", class_="marginright5 link linkWithHash detailsLink"
     ).attrs["href"]
-    offer_main_area = []
     offer_details = get_details_from_offer_page(offer_url)
     date = datetime.datetime.now().strftime("%Y-%m-%d")
     link_to_offer = offer.find(
@@ -170,18 +169,8 @@ def get_details_from_offer_page(offer_url):
     return offer_details
 
 
-def verify_price_is_primary(offer_price):
-    """
-    Verifyes what currency is primary for particular offer. Does it by checking that last two digits are '00'.
-    :param offer_price:
-    :return:
-    """
-    if abs(int(offer_price)) % 100 == 00:
-        return True
-
-
 def split_price_currency(offer):
-    #TODO: replace with input of a string. Parsing shoould be separated.
+    # TODO: replace with input of a string. Parsing shoould be separated.
     offer_price = offer.find("p", class_="price").strong.string
     if re.search(" грн.", offer_price):
         currency = "UAH"
