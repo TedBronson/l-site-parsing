@@ -1,7 +1,6 @@
 
 /olx_parser/
 .idea/
-offers.csv
 *config.py
 /venv/*
 /venv37/*
