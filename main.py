@@ -19,10 +19,22 @@ logging.basicConfig(level=logging.INFO)
 
 def main():
     # Parse offers according to limitations set in config file and in request composition.py and create a list with results
+    global offers_added
+    global offers_skipped
+    offers_added = 0
+    offers_skipped = 0
+
     list_of_offers = parse_offers()
     logging.info("Number of offers parsed from search: {}".format(len(list_of_offers)))
+
     for offer in list_of_offers:
-        update_offer_record(Offer.get_offer_details(offer))
+        offer_details = Offer.get_offer_details(offer)
+        if offer_details:
+            update_offer_record(offer_details)
+            offers_added += 1
+        else:
+            offers_skipped += 1
+
 
 
 def parse_offers():
@@ -56,4 +68,5 @@ def update_offer_record(list_of_offers):
 
 start_time = time.time()
 main()
+logging.info("Offers added: {}. Offers skipped: {}.".format(offers_added, offers_skipped))
 logging.info("--- Process finished in {} seconds ---".format(time.time() - start_time))
