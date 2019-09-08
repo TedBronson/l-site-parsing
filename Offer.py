@@ -78,7 +78,7 @@ def extended_offer_details(
     offer_main_area = offer_details.get("Общая площадь", "")
     number_of_rooms = offer_details.get("Количество комнат", "")
     floor = offer_details.get("Этаж", "")
-    floors_in_house = offer_details.get("Этажность дома", "")
+    floors_in_house = offer_details.get("Этажность", "")
     living_area = offer_details.get("Жилая площадь", "")
     kitchen_area = offer_details.get("Площадь кухни", "")
     offer_from = offer_details.get("Объявление от", "")

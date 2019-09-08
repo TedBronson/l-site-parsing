@@ -13,7 +13,6 @@ logging.basicConfig(level=logging.INFO)
 # TODO: add search parameters to look into smaller market
 # TODO: get exact address from a map
 # TODO: gather list of districts, categories for search
-# TODO: don't check price at first, write all offers. Then if first price is main - keep it, if not - replace with USD price
 # TODO: save a phone number
 
 
