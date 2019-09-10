@@ -1,6 +1,5 @@
 
 /olx_parser/
 .idea/
-*config.py
 /venv/*
 /venv37/*
