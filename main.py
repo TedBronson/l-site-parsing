@@ -35,7 +35,6 @@ def main():
             offers_skipped += 1
 
 
-
 def parse_offers():
     list_of_offers = []
     currencies_list = cfg.currencies_list
