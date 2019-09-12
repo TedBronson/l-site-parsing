@@ -106,6 +106,7 @@ def extended_offer_details(
             district,
             offer_added_date,
             offer_text,
+            offer_url
         ]
     )
 
