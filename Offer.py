@@ -75,18 +75,18 @@ def extended_offer_details(
     )[
         "href"
     ]  # Link to a page with the offer
-    offer_main_area = offer_details.get("Общая площадь", "")
-    number_of_rooms = offer_details.get("Количество комнат", "")
-    floor = offer_details.get("Этаж", "")
-    floors_in_house = offer_details.get("Этажность", "")
-    living_area = offer_details.get("Жилая площадь", "")
-    kitchen_area = offer_details.get("Площадь кухни", "")
-    offer_from = offer_details.get("Объявление от", "")
-    apartment_type = offer_details.get("Тип дома", "")
-    house_type = offer_details.get("Тип стен", "")
-    district = offer_details.get("district", "")
-    offer_added_date = offer_details.get("offer_added_date", "")
-    offer_text = offer_details.get("text", "")
+    offer_main_area = offer_details.get("Общая площадь")
+    number_of_rooms = offer_details.get("Количество комнат")
+    floor = offer_details.get("Этаж")
+    floors_in_house = offer_details.get("Этажность")
+    living_area = offer_details.get("Жилая площадь")
+    kitchen_area = offer_details.get("Площадь кухни")
+    offer_from = offer_details.get("Объявление от")
+    apartment_type = offer_details.get("Тип дома", "Не указано")
+    house_type = offer_details.get("Тип стен", "Не указано")
+    district = offer_details.get("district")
+    offer_added_date = offer_details.get("offer_added_date")
+    offer_text = offer_details.get("text")
     list_of_offer_details.append(
         [
             data_id,
