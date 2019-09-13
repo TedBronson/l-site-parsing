@@ -18,7 +18,7 @@ def write_to_db(offer_string):
         c = conn.cursor()
         if not verify_offer_exists_in_db(offer_olx_id):
             c.execute(
-                "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 offer_string,
             )
             logging.info(

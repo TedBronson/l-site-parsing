@@ -84,6 +84,7 @@ def extended_offer_details(
     offer_from = offer_details.get("Объявление от")
     apartment_type = offer_details.get("Тип дома", "Не указано")
     house_type = offer_details.get("Тип стен", "Не указано")
+    layout = offer_details.get("Планировка", "Не указано")
     district = offer_details.get("district")
     offer_added_date = offer_details.get("offer_added_date")
     offer_text = offer_details.get("text")
@@ -106,7 +107,8 @@ def extended_offer_details(
             district,
             offer_added_date,
             offer_text,
-            offer_url
+            offer_url,
+            layout
         ]
     )
 
