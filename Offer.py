@@ -1,12 +1,13 @@
+import datetime
 import logging
+import re
+
+import dateparser
 import requests
 from bs4 import BeautifulSoup
-import re
-import datetime
-import dateparser
 
-from Data_storage import verify_offer_exists_in_db
 from config import category_id
+from Data_storage import verify_offer_exists_in_db
 
 
 def get_list_of_offers(url_with_params):
@@ -38,9 +39,7 @@ def get_offer_details(offer):
         return list_of_offer_details
     offer_price = get_price(offer)
     if not verify_offer_exists_in_db(olx_offer_id):
-        extended_offer_details(
-            olx_offer_id, list_of_offer_details, offer, offer_price
-        )
+        extended_offer_details(olx_offer_id, list_of_offer_details, offer, offer_price)
         return list_of_offer_details
     # Purpose of this clause is unclear
     # elif (
@@ -57,9 +56,7 @@ def get_offer_details(offer):
         return list_of_offer_details
 
 
-def extended_offer_details(
-    data_id, list_of_offer_details, offer, offer_price
-):
+def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
     offer_title = offer.find(
         "a", class_="marginright5 link linkWithHash detailsLink"
     ).strong.string  # too specific.
@@ -69,11 +66,6 @@ def extended_offer_details(
     ).attrs["href"]
     offer_details = get_details_from_offer_page(offer_url)
     date = datetime.datetime.now().strftime("%Y-%m-%d")
-    link_to_offer = offer.find(
-        "a", class_="marginright5 link linkWithHash detailsLink"
-    )[
-        "href"
-    ]  # Link to a page with the offer
     if category_id == 1600:
         offer_main_area = offer_details.get("Общая площадь")
         number_of_rooms = offer_details.get("Количество комнат")
@@ -107,7 +99,7 @@ def extended_offer_details(
                 offer_added_date,
                 offer_text,
                 offer_url,
-                layout
+                layout,
             ]
         )
     if category_id == 206:
@@ -140,7 +132,6 @@ def extended_offer_details(
         )
 
 
-
 def get_details_from_offer_page(offer_url):
     """
     TODO: Add verification that page with search exists.
@@ -156,8 +147,8 @@ def get_details_from_offer_page(offer_url):
     # except NotImplementedError
     all_detail_tables = offer_details_table.find_all("table", attrs={"class": "item"})
     for detail in all_detail_tables:
-        detail_name = ''
-        detail_value = ''
+        detail_name = ""
+        detail_value = ""
         detail_name = detail.find("th").string
         if detail_name in ["Объявление от", "Тип квартиры", "Тип"]:
             try:
@@ -168,7 +159,7 @@ def get_details_from_offer_page(offer_url):
                 print(offer_url)
                 print(error)
             offer_details[detail_name] = detail_value
-        if detail_name in ['Общая площадь', 'Площадь кухни', 'Жилая площадь']:
+        if detail_name in ["Общая площадь", "Площадь кухни", "Жилая площадь"]:
             try:
                 detail_value = detail.find("td").strong.get_text(
                     "|", strip=True
@@ -179,7 +170,7 @@ def get_details_from_offer_page(offer_url):
             detail_value = re.sub(" м²", "", detail_value)
             detail_value = re.sub(" ", "", detail_value)
             offer_details[detail_name] = float(detail_value)
-        if detail_name in ['Площадь участка']:
+        if detail_name in ["Площадь участка"]:
             try:
                 detail_value = detail.find("td").strong.get_text(
                     "|", strip=True
@@ -206,9 +197,7 @@ def get_details_from_offer_page(offer_url):
     # Get offer added date and format it
     offer_added_date = titlebox_details.em.get_text()
     try:
-        offer_added_date = re.search("\d+ .*,", offer_added_date).group(
-            0
-        )
+        offer_added_date = re.search("\d+ .*,", offer_added_date).group(0)
         offer_added_date = re.sub(",", "", offer_added_date)
     except Exception as detail:
         print(detail)

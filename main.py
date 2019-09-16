@@ -1,8 +1,8 @@
 import logging
 import time
 
-import Offer
 import config as cfg
+import Offer
 import request_composition
 from Data_storage import write_to_db
 
