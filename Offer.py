@@ -122,7 +122,7 @@ def extended_offer_details(
         district = offer_details.get("district")
         offer_added_date = offer_details.get("offer_added_date")
         offer_text = offer_details.get("text")
-        land_area = re.sub(' соток', '', offer_details.get("Площадь участка"))
+        land_area = offer_details.get("Площадь участка")
         list_of_offer_details.append(
             [
                 data_id,
@@ -160,17 +160,22 @@ def get_details_from_offer_page(offer_url):
     all_detail_tables = offer_details_table.find_all("table", attrs={"class": "item"})
     for detail in all_detail_tables:
         detail_name = detail.find("th").string
+        detail_value = detail.find("td").strong.a.get_text(
+            "|", strip=True
+        )  # add recognition of "Объявление от" field
         if detail_name in ["Объявление от", "Тип квартиры", "Тип"]:
-            detail_value = detail.find("td").strong.a.get_text(
-                "|", strip=True
-            )  # add recognition of "Объявление от" field
             offer_details[detail_name] = detail_value
+        if detail_name in ['Общая площадь', 'Площадь кухни', 'Жилая площадь']:
+            detail_value = re.sub(" м²", "", detail_value)
+            detail_value = re.sub(" ", "", detail_value)
+            offer_details[detail_name] = float(detail_value)
+        if detail_name in ['Площадь участка']:
+            detail_value = re.sub(" соток", "", detail_value)
+            detail_value = re.sub(" ", "", detail_value)
+            offer_details[detail_name] = float(detail_value)
         else:
-            detail_value = detail.find("td").strong.get_text(
-                "|", strip=True
-            )  # add recognition of "Объявление от" field
             try:
-                detail_value = re.sub("м²", "", detail_value)
+                detail_value = re.sub(" м²", "", detail_value)
             except Exception:
                 pass
             offer_details[detail_name] = detail_value
