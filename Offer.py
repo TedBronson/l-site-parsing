@@ -159,25 +159,42 @@ def get_details_from_offer_page(offer_url):
     # except NotImplementedError
     all_detail_tables = offer_details_table.find_all("table", attrs={"class": "item"})
     for detail in all_detail_tables:
+        detail_name = ''
+        detail_value = ''
         detail_name = detail.find("th").string
-        detail_value = detail.find("td").strong.a.get_text(
-            "|", strip=True
-        )  # add recognition of "Объявление от" field
         if detail_name in ["Объявление от", "Тип квартиры", "Тип"]:
+            try:
+                detail_value = detail.find("td").strong.a.get_text(
+                    "|", strip=True
+                )  # add recognition of "Объявление от" field
+            except AttributeError as error:
+                print(offer_url)
+                print(error)
             offer_details[detail_name] = detail_value
         if detail_name in ['Общая площадь', 'Площадь кухни', 'Жилая площадь']:
+            try:
+                detail_value = detail.find("td").strong.get_text(
+                    "|", strip=True
+                )  # add recognition of "Объявление от" field
+            except AttributeError as error:
+                print(offer_url)
+                print(error)
             detail_value = re.sub(" м²", "", detail_value)
             detail_value = re.sub(" ", "", detail_value)
             offer_details[detail_name] = float(detail_value)
         if detail_name in ['Площадь участка']:
+            try:
+                detail_value = detail.find("td").strong.get_text(
+                    "|", strip=True
+                )  # add recognition of "Объявление от" field
+            except AttributeError as error:
+                print(offer_url)
+                print(error)
             detail_value = re.sub(" соток", "", detail_value)
             detail_value = re.sub(" ", "", detail_value)
             offer_details[detail_name] = float(detail_value)
         else:
-            try:
-                detail_value = re.sub(" м²", "", detail_value)
-            except Exception:
-                pass
+            detail_value = re.sub(" м²", "", detail_value)
             offer_details[detail_name] = detail_value
     titlebox_details = soup.find("div", attrs={"class": "offer-titlebox__details"})
     # Get district name
