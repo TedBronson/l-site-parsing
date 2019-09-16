@@ -6,6 +6,7 @@ import datetime
 import dateparser
 
 from Data_storage import verify_offer_exists_in_db
+from config import category_id
 
 
 def get_list_of_offers(url_with_params):
@@ -75,42 +76,72 @@ def extended_offer_details(
     )[
         "href"
     ]  # Link to a page with the offer
-    offer_main_area = offer_details.get("Общая площадь")
-    number_of_rooms = offer_details.get("Количество комнат")
-    floor = offer_details.get("Этаж")
-    floors_in_house = offer_details.get("Этажность")
-    living_area = offer_details.get("Жилая площадь")
-    kitchen_area = offer_details.get("Площадь кухни")
-    offer_from = offer_details.get("Объявление от")
-    apartment_type = offer_details.get("Тип дома", "Не указано")
-    house_type = offer_details.get("Тип стен", "Не указано")
-    layout = offer_details.get("Планировка", "Не указано")
-    district = offer_details.get("district")
-    offer_added_date = offer_details.get("offer_added_date")
-    offer_text = offer_details.get("text")
-    list_of_offer_details.append(
-        [
-            data_id,
-            offer_price,
-            currency,
-            offer_main_area,
-            number_of_rooms,
-            floor,
-            floors_in_house,
-            date,
-            offer_title,
-            living_area,
-            kitchen_area,
-            offer_from,
-            apartment_type,
-            house_type,
-            district,
-            offer_added_date,
-            offer_text,
-            offer_url,
-            layout
-        ]
-    )
+    if category_id == 1600:
+        offer_main_area = offer_details.get("Общая площадь")
+        number_of_rooms = offer_details.get("Количество комнат")
+        floor = offer_details.get("Этаж")
+        floors_in_house = offer_details.get("Этажность")
+        living_area = offer_details.get("Жилая площадь")
+        kitchen_area = offer_details.get("Площадь кухни")
+        offer_from = offer_details.get("Объявление от")
+        apartment_type = offer_details.get("Тип дома", "Не указано")
+        house_type = offer_details.get("Тип стен", "Не указано")
+        layout = offer_details.get("Планировка", "Не указано")
+        district = offer_details.get("district")
+        offer_added_date = offer_details.get("offer_added_date")
+        offer_text = offer_details.get("text")
+        list_of_offer_details.append(
+            [
+                data_id,
+                offer_price,
+                currency,
+                offer_main_area,
+                number_of_rooms,
+                floor,
+                floors_in_house,
+                date,
+                offer_title,
+                living_area,
+                kitchen_area,
+                offer_from,
+                apartment_type,
+                house_type,
+                district,
+                offer_added_date,
+                offer_text,
+                offer_url,
+                layout
+            ]
+        )
+    if category_id == 206:
+        offer_main_area = offer_details.get("Общая площадь")
+        number_of_rooms = offer_details.get("Количество комнат")
+        floors_in_house = offer_details.get("Этажность")
+        offer_from = offer_details.get("Объявление от")
+        house_type = offer_details.get("Тип дома", "Не указано")
+        district = offer_details.get("district")
+        offer_added_date = offer_details.get("offer_added_date")
+        offer_text = offer_details.get("text")
+        land_area = re.sub(' соток', '', offer_details.get("Площадь участка"))
+        list_of_offer_details.append(
+            [
+                data_id,
+                offer_price,
+                offer_main_area,
+                number_of_rooms,
+                floors_in_house,
+                date,
+                offer_title,
+                offer_from,
+                house_type,
+                district,
+                offer_added_date,
+                offer_text,
+                offer_url,
+                land_area,
+            ]
+        )
+
 
 
 def get_details_from_offer_page(offer_url):

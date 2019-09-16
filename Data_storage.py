@@ -17,26 +17,26 @@ def write_to_db(offer_string):
         conn = sqlite3.connect(config.db_file_path)
         c = conn.cursor()
         if not verify_offer_exists_in_db(offer_olx_id):
-            c.execute(
-                "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                offer_string,
-            )
-            logging.info(
-                "Added new offer with id: {}. Price: {} {}".format(
-                    offer_string[0], offer_string[1], offer_string[2]
+            if config.category_id == 1600:
+                c.execute(
+                    "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    offer_string,
                 )
-            )
-        else:
-            c.execute(
-                "UPDATE offers SET price = ?, currency = ? WHERE olx_id == ?",
-                (offer_string[1], offer_string[2], offer_string[0]),
-            )
-            # TODO: Show previous price too
-            logging.info(
-                "updated offer with id: {}. Price: {} {}".format(
-                    offer_string[0], offer_string[1], offer_string[2]
+                logging.info(
+                    "Added new apartment with id: {}. Price: {} {}".format(
+                        offer_string[0], offer_string[1], offer_string[2]
+                    )
                 )
-            )
+            elif config.category_id == 206:
+                c.execute(
+                    "INSERT INTO houses values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    offer_string,
+                )
+                logging.info(
+                    "Added new house with id: {}. Price: {} {}".format(
+                        offer_string[0], offer_string[1], offer_string[2]
+                    )
+                )
         conn.commit()
         conn.close()
     except Exception as detail:
@@ -55,6 +55,8 @@ def verify_offer_exists_in_db(data_id):
         c = conn.cursor()
         if c.execute(
             "select count(1) from offers where olx_id = (?)", (data_id,)
+        ).fetchone() == (1,) or c.execute(
+            "select count(1) from houses where olx_id = (?)", (data_id,)
         ).fetchone() == (1,):
             conn.commit()
             conn.close()
