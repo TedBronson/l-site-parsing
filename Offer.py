@@ -36,12 +36,10 @@ def get_offer_details(offer):
     except TypeError:
         logging.info("Invalid element has been parsed as offer")
         return list_of_offer_details
-    price_currency_tuple = split_price_currency(offer)
-    offer_price = price_currency_tuple[0]
-    currency = price_currency_tuple[1]
+    offer_price = get_price(offer)
     if not verify_offer_exists_in_db(olx_offer_id):
         extended_offer_details(
-            currency, olx_offer_id, list_of_offer_details, offer, offer_price
+            olx_offer_id, list_of_offer_details, offer, offer_price
         )
         return list_of_offer_details
     # Purpose of this clause is unclear
@@ -60,7 +58,7 @@ def get_offer_details(offer):
 
 
 def extended_offer_details(
-    currency, data_id, list_of_offer_details, offer, offer_price
+    data_id, list_of_offer_details, offer, offer_price
 ):
     offer_title = offer.find(
         "a", class_="marginright5 link linkWithHash detailsLink"
@@ -94,7 +92,6 @@ def extended_offer_details(
             [
                 data_id,
                 offer_price,
-                currency,
                 offer_main_area,
                 number_of_rooms,
                 floor,
@@ -226,21 +223,13 @@ def get_details_from_offer_page(offer_url):
     return offer_details
 
 
-def split_price_currency(offer):
+def get_price(offer):
     # TODO: replace with input of a string. Parsing shoould be separated.
     offer_price = offer.find("p", class_="price").strong.string
-    if re.search(" грн.", offer_price):
-        currency = "UAH"
-    elif re.search("$", offer_price):
-        currency = "USD"
-    elif re.search("€", offer_price):
-        currency = "EUR"
-    else:
-        currency = "Unknown"
     try:
         offer_price = re.sub(" грн.|\$|€", "", offer_price)
         offer_price = re.sub(" ", "", offer_price)
     except Exception as detail:
         print(detail)
 
-    return offer_price, currency
+    return offer_price

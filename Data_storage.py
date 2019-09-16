@@ -19,7 +19,7 @@ def write_to_db(offer_string):
         if not verify_offer_exists_in_db(offer_olx_id):
             if config.category_id == 1600:
                 c.execute(
-                    "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     offer_string,
                 )
                 logging.info(
