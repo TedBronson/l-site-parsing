@@ -150,7 +150,14 @@ def get_details_from_offer_page(offer_url):
         detail_name = ""
         detail_value = ""
         detail_name = detail.find("th").string
-        if detail_name in ["Объявление от", "Тип квартиры", "Тип"]:
+        if detail_name in [
+            "Объявление от",
+            "Тип объекта",
+            "Тип дома",
+            "Тип",
+            "Планировка",
+            "Тип стен",
+        ]:
             try:
                 detail_value = detail.find("td").strong.a.get_text(
                     "|", strip=True
@@ -181,9 +188,15 @@ def get_details_from_offer_page(offer_url):
             detail_value = re.sub(" соток", "", detail_value)
             detail_value = re.sub(" ", "", detail_value)
             offer_details[detail_name] = float(detail_value)
-        else:
-            detail_value = re.sub(" м²", "", detail_value)
-            offer_details[detail_name] = detail_value
+        if detail_name in ["Этаж", "Этажность", "Количество комнат"]:
+            try:
+                detail_value = detail.find("td").strong.get_text(
+                    "|", strip=True
+                )  # add recognition of "Объявление от" field
+            except AttributeError as error:
+                print(offer_url)
+                print(error)
+            offer_details[detail_name] = float(detail_value)
     titlebox_details = soup.find("div", attrs={"class": "offer-titlebox__details"})
     # Get district name
     district = titlebox_details.a.strong.string
