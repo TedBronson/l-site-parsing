@@ -145,7 +145,10 @@ def get_details_from_offer_page(offer_url):
     # try:
     offer_details_table = soup.find("table", attrs={"class": "details"})
     # except NotImplementedError
-    all_detail_tables = offer_details_table.find_all("table", attrs={"class": "item"})
+    try:
+        all_detail_tables = offer_details_table.find_all("table", attrs={"class": "item"})
+    except AttributeError as details:
+        print(details)
     for detail in all_detail_tables:
         detail_name = ""
         detail_value = ""

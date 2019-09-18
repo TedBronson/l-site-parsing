@@ -67,3 +67,28 @@ def verify_offer_exists_in_db(data_id):
             return False
     except Exception as detail:
         print(detail)
+
+
+def get_parsing_queries():
+    """
+    Function to read and return active queries that should be used to get data about offers with all parameters.
+    :return: list of dictionaries. Where each dictionary is a parsing query
+    """
+    conn = sqlite3.connect(config.db_file_path)
+    conn.row_factory = dict_factory
+    c = conn.cursor()
+    c.execute("SELECT * FROM parsing_queries where query_enabled=TRUE")
+    parsing_queries = c.fetchall()
+
+    conn.commit()
+    conn.close()
+
+    return parsing_queries
+
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+

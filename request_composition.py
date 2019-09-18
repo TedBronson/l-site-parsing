@@ -1,25 +1,31 @@
 from config import category_id
 
-cities = {"Kharkiv": 280, "Kyiv": 268}
-districts = {"Индустриальный": 79}
-regions = {"Харьковская область": 8}
 
-
-def compose_request(currency):
+def compose_request(
+    city_id,
+    region_id,
+    district_id,
+    distance=0,
+    query_term="",
+    number_of_rooms_from=1,
+    number_of_rooms_to=5,
+    currency="USD",
+):
     """
     Creates a request to get a list of offers for parsing
-    :param currency: string. is empty for Hryvnya
+    :param city_id: cities = {"Kharkiv": 280, "Kyiv": 268}
+    :param region_id: regions = {"Харьковская область": 8}
+    :param district_id:
+    :param distance:
+    :param query_term: Search term as text. Short and concise.
+    :param number_of_rooms_from:
+    :param number_of_rooms_to:
+    :param currency: Three-character currency code. Empty string "" for UAH.
     :return:
     """
-    city_id = cities["Kharkiv"]
-    region_id = regions["Харьковская область"]
-    district_id = ""
-    distance = 0  # Search distance from a point
-    number_of_rooms_from = 1
-    number_of_rooms_to = 5
-
     search_request = "https://www.olx.ua/ajax/kharkov/search/list/"
     request_parameters = {
+        "q": query_term,
         "search[city_id]": city_id,
         "search[category_id]": category_id,
         "search[region_id]": region_id,
