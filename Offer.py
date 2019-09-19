@@ -6,7 +6,6 @@ import dateparser
 import requests
 from bs4 import BeautifulSoup
 
-from config import category_id
 from Data_storage import verify_offer_exists_in_db
 
 
@@ -57,6 +56,8 @@ def get_offer_details(offer):
 
 
 def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
+    from config import category_id
+
     offer_title = offer.find(
         "a", class_="marginright5 link linkWithHash detailsLink"
     ).strong.string  # too specific.
@@ -102,7 +103,7 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
                 layout,
             ]
         )
-    if category_id == 206:
+    if category_id == 1602:
         offer_main_area = offer_details.get("Общая площадь")
         number_of_rooms = offer_details.get("Количество комнат")
         floors_in_house = offer_details.get("Этажность")

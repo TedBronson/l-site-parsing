@@ -28,10 +28,13 @@ def main():
         district_id = query.get("district_id")
         distance = query.get("distance")
         query_term = query.get("query_term")
+        category_id = query.get("category_id")
+
+        cfg.category_id = category_id
 
         logging.info("Parsing offers for query: {}. \n".format(query_name))
 
-        list_of_offers = parse_offers(city_id, region_id, district_id, distance, query_term, )
+        list_of_offers = parse_offers(city_id, region_id, district_id, distance, query_term, category_id, )
         logging.info("Number of offers parsed from search: {} \n".format(len(list_of_offers)))
 
         for offer in list_of_offers:
@@ -45,10 +48,10 @@ def main():
         logging.info("Offers added: {}. Offers skipped: {}.".format(offers_added, offers_skipped))
 
 
-def parse_offers(city_id, region_id, district_id, distance, query_term, ):
+def parse_offers(city_id, region_id, district_id, distance, query_term, category_id, ):
     list_of_offers = []
         # Creates URL request with city, category and other params
-    post_request_offers = request_composition.compose_request(city_id, region_id, district_id, distance, query_term, )
+    post_request_offers = request_composition.compose_request(city_id, region_id, district_id, category_id, )
     for current_page in range(
         cfg.search_pages_lower_limit, cfg.search_pages_upper_limit
     ):

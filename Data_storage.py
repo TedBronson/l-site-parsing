@@ -1,7 +1,6 @@
 import logging
 import sqlite3
-
-import config
+from config import db_file_path
 
 # TODO: move db file path into config
 
@@ -12,12 +11,13 @@ def write_to_db(offer_string):
     :param offer_string:
     :return:
     """
+    from config import category_id
     try:
         offer_olx_id = offer_string[0]
-        conn = sqlite3.connect(config.db_file_path)
+        conn = sqlite3.connect(db_file_path)
         c = conn.cursor()
         if not verify_offer_exists_in_db(offer_olx_id):
-            if config.category_id == 1600:
+            if category_id == 1600:
                 c.execute(
                     "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     offer_string,
@@ -27,7 +27,7 @@ def write_to_db(offer_string):
                         offer_string[0], offer_string[1], offer_string[2]
                     )
                 )
-            elif config.category_id == 206:
+            elif category_id == 1602:
                 c.execute(
                     "INSERT INTO houses values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     offer_string,
@@ -51,7 +51,7 @@ def verify_offer_exists_in_db(data_id):
     :return:
     """
     try:
-        conn = sqlite3.connect(config.db_file_path)
+        conn = sqlite3.connect(db_file_path)
         c = conn.cursor()
         if c.execute(
             "select count(1) from offers where olx_id = (?)", (data_id,)
@@ -74,7 +74,7 @@ def get_parsing_queries():
     Function to read and return active queries that should be used to get data about offers with all parameters.
     :return: list of dictionaries. Where each dictionary is a parsing query
     """
-    conn = sqlite3.connect(config.db_file_path)
+    conn = sqlite3.connect(db_file_path)
     conn.row_factory = dict_factory
     c = conn.cursor()
     c.execute("SELECT * FROM parsing_queries where query_enabled=TRUE")

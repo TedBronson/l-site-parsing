@@ -1,10 +1,10 @@
-from config import category_id
 
 
 def compose_request(
     city_id,
     region_id,
     district_id,
+    category_id,
     distance=0,
     query_term="",
     number_of_rooms_from=1,
@@ -16,6 +16,7 @@ def compose_request(
     :param city_id: cities = {"Kharkiv": 280, "Kyiv": 268}
     :param region_id: regions = {"Харьковская область": 8}
     :param district_id:
+    :param category_id:
     :param distance:
     :param query_term: Search term as text. Short and concise.
     :param number_of_rooms_from:
