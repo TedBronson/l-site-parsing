@@ -11,6 +11,8 @@ from Data_storage import verify_offer_exists_in_db
 
 def get_list_of_offers(url_with_params):
     """
+    Find separate offers on a page with search results.
+
     Offer parsing, data extraction
     :param url_with_params:
     :return:
@@ -18,8 +20,8 @@ def get_list_of_offers(url_with_params):
     page = requests.post(url_with_params[0], url_with_params[1])
     if page.status_code != 200:
         logging.info("Search request resulted in code: {}".format(page.status_code))
-    page = page.text
-    soup = BeautifulSoup(page, "html.parser")
+    page_text = page.text
+    soup = BeautifulSoup(page_text, "html.parser")
     offers = soup.find_all("td", class_="offer")
 
     return offers
@@ -27,6 +29,7 @@ def get_list_of_offers(url_with_params):
 
 def get_offer_details(offer):
     """
+    Get offer details from individual page if offer doesn't exist in DB.
 
     :param offer: BeatifulSoup object. Has string 'text' attribute that contains text of an offer.
     :return:
@@ -41,21 +44,21 @@ def get_offer_details(offer):
     if not verify_offer_exists_in_db(olx_offer_id):
         extended_offer_details(olx_offer_id, list_of_offer_details, offer, offer_price)
         return list_of_offer_details
-    # Purpose of this clause is unclear
-    # elif (
-    #     verify_offer_exists_in_db(olx_offer_id)
-    #     and currency == "UAH"
-    #     and verify_price_is_primary(offer_price)
-    # ):
-    #     extended_offer_details(
-    #         currency, olx_offer_id, list_of_offer_details, offer, offer_price
-    #     )
-    #     return list_of_offer_details
     else:
         return list_of_offer_details
 
 
 def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
+    """
+    Parse individual offer page and save relevant data as dictionary.
+
+    This function opens link to an individual offer, parses fields on the page and populates list_of_offer_details
+    :param data_id: olx_id
+    :param list_of_offer_details: empty list
+    :param offer: individual offer parsed from search page
+    :param offer_price:
+    :return: dictionary
+    """
     from config import category_id
 
     offer_title = offer.find(
@@ -140,12 +143,10 @@ def get_details_from_offer_page(offer_url):
     :return:
     """
     page = requests.get(offer_url)
-    page = page.text
-    soup = BeautifulSoup(page, "html.parser")
+    page_text = page.text
+    soup = BeautifulSoup(page_text, "html.parser")
     offer_details = {}
-    # try:
     offer_details_table = soup.find("table", attrs={"class": "details"})
-    # except NotImplementedError
     try:
         all_detail_tables = offer_details_table.find_all("table", attrs={"class": "item"})
     except AttributeError as details:
@@ -230,7 +231,13 @@ def get_details_from_offer_page(offer_url):
 
 
 def get_price(offer):
-    # TODO: replace with input of a string. Parsing shoould be separated.
+    """
+    Get price value from field in offer html.
+
+    Function takes offer with short information and returns int with offer price.
+    :param offer: offer parsed from search page.
+    :return: int with price.
+    """
     offer_price = offer.find("p", class_="price").strong.string
     try:
         offer_price = re.sub(" грн.|\$|€", "", offer_price)

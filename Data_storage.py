@@ -4,7 +4,8 @@ from config import db_file_path
 
 def write_to_db(offer_string):
     """
-    Appends a new line to a file. No verification and it doesn't update old records
+    Appends a new line to a file. No verification and it doesn't update old records.
+    category_id for houses and apartments is hardcoded, so saving other categories would require code adjustments.
     :param offer_string:
     :return:
     """
@@ -58,6 +59,8 @@ def verify_offer_exists_in_db(data_id):
 
 def get_parsing_queries():
     """
+    Read search queries from DB.
+
     Function to read and return active queries that should be used to get data about offers with all parameters.
     :return: list of dictionaries. Where each dictionary is a parsing query
     """

@@ -4,7 +4,7 @@ import time
 import config as cfg
 import Offer
 import request_composition
-from Data_storage import write_to_db,  get_parsing_queries
+from Data_storage import write_to_db, get_parsing_queries
 
 logging.basicConfig(level=logging.INFO)
 
@@ -34,8 +34,12 @@ def main():
 
         logging.info("Parsing offers for query: {}. \n".format(query_name))
 
-        list_of_offers = parse_offers(city_id, region_id, district_id, distance, query_term, category_id, )
-        logging.info("Number of offers parsed from search: {} \n".format(len(list_of_offers)))
+        list_of_offers = parse_offers(
+            city_id, region_id, district_id, distance, query_term, category_id
+        )
+        logging.info(
+            "Number of offers parsed from search: {} \n".format(len(list_of_offers))
+        )
 
         for offer in list_of_offers:
             offer_details = Offer.get_offer_details(offer)
@@ -45,13 +49,28 @@ def main():
             else:
                 offers_skipped += 1
 
-        logging.info("Offers added: {}. Offers skipped: {}.".format(offers_added, offers_skipped))
+        logging.info(
+            "Offers added: {}. Offers skipped: {}.".format(offers_added, offers_skipped)
+        )
 
 
-def parse_offers(city_id, region_id, district_id, distance, query_term, category_id, ):
+def parse_offers(city_id, region_id, district_id, distance, query_term, category_id):
+    """
+    This function parses all offers from search pages within given limits and creates a list of offers with limited info
+    available (price, olx_id, title).
+    :param city_id:
+    :param region_id:
+    :param district_id:
+    :param distance:
+    :param query_term:
+    :param category_id:
+    :return:
+    """
     list_of_offers = []
-        # Creates URL request with city, category and other params
-    post_request_offers = request_composition.compose_request(city_id, region_id, district_id, category_id, )
+
+    post_request_offers = request_composition.compose_request(
+        city_id, region_id, district_id, category_id, distance, query_term
+    )
     for current_page in range(
         cfg.search_pages_lower_limit, cfg.search_pages_upper_limit
     ):
@@ -60,7 +79,9 @@ def parse_offers(city_id, region_id, district_id, distance, query_term, category
             post_request_offers
         )  # Parses offers from a page
         for offer in page_list_of_offers:
-            list_of_offers.append(offer)  # Parses offers from all pages in a range and creates list
+            list_of_offers.append(
+                offer
+            )  # Parses offers from all pages in a range and creates list
     return list_of_offers
 
 
