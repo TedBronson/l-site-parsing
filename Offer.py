@@ -16,7 +16,8 @@ def get_list_of_offers(url_with_params):
     :return:
     """
     page = requests.post(url_with_params[0], url_with_params[1])
-    logging.info("Search request resulted in code: {}".format(page.status_code))
+    if page.status_code != 200:
+        logging.info("Search request resulted in code: {}".format(page.status_code))
     page = page.text
     soup = BeautifulSoup(page, "html.parser")
     offers = soup.find_all("td", class_="offer")
