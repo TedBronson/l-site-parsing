@@ -51,7 +51,6 @@ def get_offer_details(offer):
     #     )
     #     return list_of_offer_details
     else:
-        logging.info("Offer with id {} already exist in DB".format(olx_offer_id))
         return list_of_offer_details
 
 

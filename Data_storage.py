@@ -1,8 +1,5 @@
-import logging
 import sqlite3
 from config import db_file_path
-
-# TODO: move db file path into config
 
 
 def write_to_db(offer_string):
@@ -22,20 +19,10 @@ def write_to_db(offer_string):
                     "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     offer_string,
                 )
-                logging.info(
-                    "Added new apartment with id: {}. Price: {} {}".format(
-                        offer_string[0], offer_string[1], offer_string[2]
-                    )
-                )
             elif category_id == 1602:
                 c.execute(
                     "INSERT INTO houses values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     offer_string,
-                )
-                logging.info(
-                    "Added new house with id: {}. Price: {} {}".format(
-                        offer_string[0], offer_string[1], offer_string[2]
-                    )
                 )
         conn.commit()
         conn.close()
