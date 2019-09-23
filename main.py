@@ -42,7 +42,10 @@ def main():
         )
 
         for offer in list_of_offers:
-            offer_details = Offer.get_offer_details(offer)
+            try:
+                offer_details = Offer.get_offer_details(offer)
+            except Offer.PageNotValid:
+                continue
             if offer_details:
                 update_offer_record(offer_details)
                 offers_added += 1
@@ -75,9 +78,12 @@ def parse_offers(city_id, region_id, district_id, distance, query_term, category
         cfg.search_pages_lower_limit, cfg.search_pages_upper_limit
     ):
         post_request_offers[1]["page"] = current_page
-        page_list_of_offers = Offer.get_list_of_offers(
+        try:
+            page_list_of_offers = Offer.get_list_of_offers(
             post_request_offers
         )  # Parses offers from a page
+        except Offer.PageNotValid:
+            continue
         for offer in page_list_of_offers:
             list_of_offers.append(
                 offer

@@ -9,6 +9,11 @@ from bs4 import BeautifulSoup
 from Data_storage import verify_offer_exists_in_db
 
 
+class PageNotValid(Exception):
+    """Raised when offer detail page returns redirect, page not found or any code other than 200."""
+    pass
+
+
 def get_list_of_offers(url_with_params):
     """
     Find separate offers on a page with search results.
@@ -17,9 +22,10 @@ def get_list_of_offers(url_with_params):
     :param url_with_params:
     :return:
     """
-    page = requests.post(url_with_params[0], url_with_params[1])
+    page = requests.post(url_with_params[0], url_with_params[1], allow_redirects=False)
     if page.status_code != 200:
         logging.info("Search request resulted in code: {}".format(page.status_code))
+        raise PageNotValid
     page_text = page.text
     soup = BeautifulSoup(page_text, "html.parser")
     offers = soup.find_all("td", class_="offer")
@@ -42,7 +48,10 @@ def get_offer_details(offer):
         return list_of_offer_details
     offer_price = get_price(offer)
     if not verify_offer_exists_in_db(olx_offer_id):
-        extended_offer_details(olx_offer_id, list_of_offer_details, offer, offer_price)
+        try:
+            extended_offer_details(olx_offer_id, list_of_offer_details, offer, offer_price)
+        except PageNotValid:
+            raise
         return list_of_offer_details
     else:
         return list_of_offer_details
@@ -68,7 +77,10 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
     offer_url = offer.find(
         "a", class_="marginright5 link linkWithHash detailsLink"
     ).attrs["href"]
-    offer_details = get_details_from_offer_page(offer_url)
+    try:
+        offer_details = get_details_from_offer_page(offer_url)
+    except PageNotValid:
+        raise
     date = datetime.datetime.now().strftime("%Y-%m-%d")
     if category_id == 1600:
         offer_main_area = offer_details.get("Общая площадь")
@@ -142,10 +154,13 @@ def get_details_from_offer_page(offer_url):
     :param offer_url:
     :return:
     """
-    page = requests.get(offer_url)
+    offer_details = {}
+
+    page = requests.get(offer_url, allow_redirects=False)
+    if page.status_code != 200:
+        raise PageNotValid
     page_text = page.text
     soup = BeautifulSoup(page_text, "html.parser")
-    offer_details = {}
     offer_details_table = soup.find("table", attrs={"class": "details"})
     try:
         all_detail_tables = offer_details_table.find_all("table", attrs={"class": "item"})
