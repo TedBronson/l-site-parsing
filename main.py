@@ -1,5 +1,5 @@
 import logging
-import time
+from datetime import datetime, timedelta
 
 import config as cfg
 import Offer
@@ -95,6 +95,6 @@ def update_offer_record(list_of_offers):
         write_to_db(offer)
 
 
-start_time = time.time()
+start_time = datetime.now()
 main()
-logging.info("--- Process finished in {} seconds ---".format(time.time() - start_time))
+logging.info("--- Process finished in {} ---".format(str(timedelta(seconds=(datetime.now() - start_time).seconds))))
