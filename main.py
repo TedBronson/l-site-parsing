@@ -71,6 +71,10 @@ def parse_offers(city_id, region_id, district_id, distance, query_term, category
     """
     list_of_offers = []
 
+    # Don't search for houses on pages above 55, they don't exist.
+    if category_id == 1602 & cfg.search_pages_lower_limit > 55:
+        return list_of_offers
+
     post_request_offers = request_composition.compose_request(
         city_id, region_id, district_id, category_id, distance, query_term
     )
