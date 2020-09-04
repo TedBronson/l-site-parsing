@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import config as cfg
 import Offer
 import request_composition
-from Data_storage import write_to_db, get_parsing_queries
+from Data_storage import write_to_db, get_parsing_queries, existing_offer_ids
 
 logging.basicConfig(level=logging.INFO)
 
@@ -20,7 +20,6 @@ def main():
     # Parse offers according to limitations set in config file and in request composition.py and create a list with results
     for query in get_parsing_queries():
         offers_added = 0
-        offers_skipped = 0
 
         query_name = query.get("Name")
         city_id = query.get("city_id")
@@ -41,20 +40,26 @@ def main():
             "Number of offers parsed from search: {} \n".format(len(list_of_offers))
         )
 
+        ids_in_db = existing_offer_ids(category_id)
+
+        filtered_list_of_offers = list()
         for offer in list_of_offers:
             try:
-                offer_details = Offer.get_offer_details(offer)
-            except Offer.PageNotValid:
+                olx_offer_id = int(offer.table["data-id"])  # Get id of an offer
+            except TypeError:
                 continue
-            if offer_details:
-                update_offer_record(offer_details)
-                offers_added += 1
-            else:
-                offers_skipped += 1
+            if olx_offer_id not in ids_in_db:
+                filtered_list_of_offers.append(offer)
 
-        logging.info(
-            "Offers added: {}. Offers skipped: {}.".format(offers_added, offers_skipped)
-        )
+        for offer in filtered_list_of_offers:
+            try:
+                offer_details = Offer.get_offer_details(offer)
+            except (Offer.PageNotValid, AttributeError):
+                continue
+            update_offer_record(offer_details)
+            offers_added += 1
+
+        logging.info("Offers added: {}.".format(offers_added))
 
 
 def parse_offers(city_id, region_id, district_id, distance, query_term, category_id):
@@ -84,8 +89,8 @@ def parse_offers(city_id, region_id, district_id, distance, query_term, category
         post_request_offers[1]["page"] = current_page
         try:
             page_list_of_offers = Offer.get_list_of_offers(
-            post_request_offers
-        )  # Parses offers from a page
+                post_request_offers
+            )  # Parses offers from a page
         except Offer.PageNotValid:
             continue
         for offer in page_list_of_offers:
@@ -107,4 +112,8 @@ def update_offer_record(list_of_offers):
 
 start_time = datetime.now()
 main()
-logging.info("--- Process finished in {} ---".format(str(timedelta(seconds=(datetime.now() - start_time).seconds))))
+logging.info(
+    "--- Process finished in {} ---".format(
+        str(timedelta(seconds=(datetime.now() - start_time).seconds))
+    )
+)

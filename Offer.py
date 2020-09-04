@@ -1,12 +1,11 @@
 import datetime
 import logging
 import re
+import sys
 
 import dateparser
 import requests
 from bs4 import BeautifulSoup
-
-from Data_storage import verify_offer_exists_in_db
 
 
 class PageNotValid(Exception):
@@ -47,14 +46,11 @@ def get_offer_details(offer):
         logging.info("Invalid element has been parsed as offer")
         return list_of_offer_details
     offer_price = get_price(offer)
-    if not verify_offer_exists_in_db(olx_offer_id):
-        try:
-            extended_offer_details(olx_offer_id, list_of_offer_details, offer, offer_price)
-        except PageNotValid:
-            raise
-        return list_of_offer_details
-    else:
-        return list_of_offer_details
+    try:
+        extended_offer_details(olx_offer_id, list_of_offer_details, offer, offer_price)
+    except (PageNotValid, AttributeError):
+        raise
+    return list_of_offer_details
 
 
 def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
@@ -74,12 +70,14 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
         "a", class_="marginright5 link linkWithHash detailsLink"
     ).strong.string  # too specific.
     #  Should make class more general
+    # TODO: Remove URL part after ".html"
     offer_url = offer.find(
         "a", class_="marginright5 link linkWithHash detailsLink"
     ).attrs["href"]
     try:
         offer_details = get_details_from_offer_page(offer_url)
-    except PageNotValid:
+    except (PageNotValid, AttributeError):
+        print("Couldn't get details from offer page")
         raise
     date = datetime.datetime.now().strftime("%Y-%m-%d")
     if category_id == 1600:
@@ -118,6 +116,7 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
                 layout,
             ]
         )
+        print("Saved flat offer details")
     if category_id == 1602:
         offer_main_area = offer_details.get("Общая площадь")
         number_of_rooms = offer_details.get("Количество комнат")
@@ -146,6 +145,7 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
                 land_area,
             ]
         )
+        print("Saved house offer details")
 
 
 def get_details_from_offer_page(offer_url):
@@ -161,15 +161,16 @@ def get_details_from_offer_page(offer_url):
         raise PageNotValid
     page_text = page.text
     soup = BeautifulSoup(page_text, "html.parser")
-    offer_details_table = soup.find("table", attrs={"class": "details"})
+    offer_details_table = soup.find("ul", attrs={"class": "offer-details"})
     try:
-        all_detail_tables = offer_details_table.find_all("table", attrs={"class": "item"})
+        all_detail_tables = offer_details_table.find_all("li", attrs={"class": "offer-details__item"})
     except AttributeError as details:
         print(details)
+        raise
     for detail in all_detail_tables:
         detail_name = ""
         detail_value = ""
-        detail_name = detail.find("th").string
+        detail_name = detail.find("span", attrs={"class": "offer-details__name"}).string
         if detail_name in [
             "Объявление от",
             "Тип объекта",
@@ -179,7 +180,7 @@ def get_details_from_offer_page(offer_url):
             "Тип стен",
         ]:
             try:
-                detail_value = detail.find("td").strong.a.get_text(
+                detail_value = detail.find("strong").get_text(
                     "|", strip=True
                 )  # add recognition of "Объявление от" field
             except AttributeError as error:
@@ -188,7 +189,7 @@ def get_details_from_offer_page(offer_url):
             offer_details[detail_name] = detail_value
         if detail_name in ["Общая площадь", "Площадь кухни", "Жилая площадь"]:
             try:
-                detail_value = detail.find("td").strong.get_text(
+                detail_value = detail.find("strong").get_text(
                     "|", strip=True
                 )  # add recognition of "Объявление от" field
             except AttributeError as error:
@@ -199,7 +200,7 @@ def get_details_from_offer_page(offer_url):
             offer_details[detail_name] = float(detail_value)
         if detail_name in ["Площадь участка"]:
             try:
-                detail_value = detail.find("td").strong.get_text(
+                detail_value = detail.find("strong").get_text(
                     "|", strip=True
                 )  # add recognition of "Объявление от" field
             except AttributeError as error:
@@ -210,16 +211,15 @@ def get_details_from_offer_page(offer_url):
             offer_details[detail_name] = float(detail_value)
         if detail_name in ["Этаж", "Этажность", "Количество комнат"]:
             try:
-                detail_value = detail.find("td").strong.get_text(
+                detail_value = detail.find("strong").get_text(
                     "|", strip=True
                 )  # add recognition of "Объявление от" field
             except AttributeError as error:
                 print(offer_url)
                 print(error)
             offer_details[detail_name] = float(detail_value)
-    titlebox_details = soup.find("div", attrs={"class": "offer-titlebox__details"})
     # Get district name
-    district = titlebox_details.a.strong.string
+    district = soup.find("address").p.get_text()
     try:
         district = re.sub(
             "Харьков, Харьковская область, ", "", district
@@ -228,19 +228,21 @@ def get_details_from_offer_page(offer_url):
         print(detail)
     offer_details["district"] = district
     # Get offer added date and format it
-    offer_added_date = titlebox_details.em.get_text()
     try:
-        offer_added_date = re.search("\d+ .*,", offer_added_date).group(0)
-        offer_added_date = re.sub(",", "", offer_added_date)
+        offer_added_date = soup.find(string=re.compile(".*Добавлено: в.*"))
+        offer_added_date = re.search("\d{1,2}\D*\d{4}", offer_added_date).group(0)
+        offer_added_date = dateparser.parse(
+            offer_added_date, date_formats=["%d %B %Y"], languages=["ru"]
+        ).strftime("%Y-%m-%d")
+        offer_details["offer_added_date"] = offer_added_date
+    except Exception as detail:
+        print("Couldn't save 'offer added date' because of Exception: {}".format(detail))
+    try:
+        offer_details["text"] = soup.find("div", attrs={"id": "textContent"}).get_text(
+            "|", strip=True
+        )
     except Exception as detail:
         print(detail)
-    offer_added_date = dateparser.parse(
-        offer_added_date, date_formats=["%d %B %Y"], languages=["ru"]
-    ).strftime("%Y-%m-%d")
-    offer_details["offer_added_date"] = offer_added_date
-    offer_details["text"] = soup.find("div", attrs={"id": "textContent"}).get_text(
-        "|", strip=True
-    )
 
     return offer_details
 

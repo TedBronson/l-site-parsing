@@ -11,50 +11,37 @@ def write_to_db(offer_string):
     """
     from config import category_id
     try:
-        offer_olx_id = offer_string[0]
         conn = sqlite3.connect(db_file_path)
         c = conn.cursor()
-        if not verify_offer_exists_in_db(offer_olx_id):
-            if category_id == 1600:
-                c.execute(
-                    "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    offer_string,
-                )
-            elif category_id == 1602:
-                c.execute(
-                    "INSERT INTO houses values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    offer_string,
-                )
+        if category_id == 1600:
+            c.execute(
+                "INSERT INTO offers values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                offer_string,
+            )
+        elif category_id == 1602:
+            c.execute(
+                "INSERT INTO houses values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                offer_string,
+            )
         conn.commit()
         conn.close()
-    except Exception as detail:
-        print(detail)
+    except Exception as e:
+        print(e)
 
 
-def verify_offer_exists_in_db(data_id):
-    """
-    Verifyes that offer with same data_id already exists in storage. Need to add more variables for verification
-    to allow multiple entries of same offer with different prices.
-    :param data_id:
-    :return:
-    """
-    try:
-        conn = sqlite3.connect(db_file_path)
-        c = conn.cursor()
-        if c.execute(
-            "select count(1) from offers where olx_id = (?)", (data_id,)
-        ).fetchone() == (1,) or c.execute(
-            "select count(1) from houses where olx_id = (?)", (data_id,)
-        ).fetchone() == (1,):
-            conn.commit()
-            conn.close()
-            return True
-        else:
-            conn.commit()
-            conn.close()
-            return False
-    except Exception as detail:
-        print(detail)
+def existing_offer_ids(category_id):
+    """Returns ids of all offers of specified category currently in DB."""
+    conn = sqlite3.connect(db_file_path)
+    conn.row_factory = lambda cursor, row: row[0]
+    c = conn.cursor()
+    if category_id == 1600:
+        ids_in_db = c.execute("select olx_id from offers").fetchall()
+    if category_id == 1602:
+        ids_in_db = c.execute("select olx_id from houses").fetchall()
+    # TODO: this common query needs to be verified
+    # ids_in_db = c.execute("select olx_id from offers union select olx_id from houses").fetchall()
+    conn.close()
+    return ids_in_db
 
 
 def get_parsing_queries():
