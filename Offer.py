@@ -116,7 +116,7 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
                 layout,
             ]
         )
-        print("Saved flat offer details")
+        print("Saved '{}' offer details".format(offer_title))
     if category_id == 1602:
         offer_main_area = offer_details.get("Общая площадь")
         number_of_rooms = offer_details.get("Количество комнат")
@@ -145,7 +145,7 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
                 land_area,
             ]
         )
-        print("Saved house offer details")
+        print("Saved '{}' offer details".format(offer_title))
 
 
 def get_details_from_offer_page(offer_url):
