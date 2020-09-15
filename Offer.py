@@ -1,10 +1,9 @@
 import datetime
 import logging
 import re
-import sys
 
 import dateparser
-import requests
+import requests as r
 from bs4 import BeautifulSoup
 
 
@@ -13,7 +12,7 @@ class PageNotValid(Exception):
     pass
 
 
-def get_list_of_offers(url_with_params):
+def get_set_of_offers(url_with_params):
     """
     Find separate offers on a page with search results.
 
@@ -21,11 +20,11 @@ def get_list_of_offers(url_with_params):
     :param url_with_params:
     :return:
     """
-    page = requests.post(url_with_params[0], url_with_params[1], allow_redirects=False)
-    if page.status_code != 200:
-        logging.info("Search request resulted in code: {}".format(page.status_code))
+    search_results_page = r.post(url_with_params[0], url_with_params[1], allow_redirects=False)
+    if search_results_page.status_code != 200:
+        logging.info("Search request resulted in code: {}".format(search_results_page.status_code))
         raise PageNotValid
-    page_text = page.text
+    page_text = search_results_page.text
     soup = BeautifulSoup(page_text, "html.parser")
     offers = soup.find_all("td", class_="offer")
 
@@ -70,10 +69,9 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
         "a", class_="marginright5 link linkWithHash detailsLink"
     ).strong.string  # too specific.
     #  Should make class more general
-    # TODO: Remove URL part after ".html"
-    offer_url = offer.find(
+    offer_url = re.findall("(.+html)", offer.find(
         "a", class_="marginright5 link linkWithHash detailsLink"
-    ).attrs["href"]
+    ).attrs["href"])[0]
     try:
         offer_details = get_details_from_offer_page(offer_url)
     except (PageNotValid, AttributeError):
@@ -116,7 +114,7 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
                 layout,
             ]
         )
-        print("Saved flat offer details")
+        print("Saved '{}' offer details".format(offer_title))
     if category_id == 1602:
         offer_main_area = offer_details.get("Общая площадь")
         number_of_rooms = offer_details.get("Количество комнат")
@@ -145,7 +143,7 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
                 land_area,
             ]
         )
-        print("Saved house offer details")
+        print("Saved '{}' offer details".format(offer_title))
 
 
 def get_details_from_offer_page(offer_url):
@@ -156,7 +154,7 @@ def get_details_from_offer_page(offer_url):
     """
     offer_details = {}
 
-    page = requests.get(offer_url, allow_redirects=False)
+    page = r.get(offer_url, allow_redirects=False)
     if page.status_code != 200:
         raise PageNotValid
     page_text = page.text
