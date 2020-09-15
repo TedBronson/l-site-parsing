@@ -29,7 +29,7 @@ def main():
 
         logging.info("Parsing offers for query: {}. \n".format(query_name))
 
-        list_of_offers = parse_offers(
+        list_of_offers = parse_search_results_pages(
             query.get("city_id"),
             query.get("region_id"),
             query.get("district_id"),
@@ -69,7 +69,7 @@ def filter_out_existing_offers(list_of_offers, category_id):
     return filtered_list_of_offers
 
 
-def parse_offers(city_id, region_id, district_id, distance, query_term, category_id):
+def parse_search_results_pages(city_id, region_id, district_id, distance, query_term, category_id):
     """
     This function parses all offers from search pages within given limits and creates a list of offers with limited info
     available (price, olx_id, title).
@@ -83,25 +83,25 @@ def parse_offers(city_id, region_id, district_id, distance, query_term, category
     """
     list_of_offers = []
 
-    # Don't search for houses on pages above 55, they don't exist.
+    # Don't search for houses on pages above 10, they don't exist.
     if category_id == 1602 & cfg.search_pages_lower_limit > 10:
         return list_of_offers
 
-    post_request_offers = request_composition.compose_request(
+    search_url = request_composition.compose_request(
         city_id, region_id, district_id, category_id, distance, query_term
     )
     for current_page in range(
         cfg.search_pages_lower_limit, cfg.search_pages_upper_limit
     ):
         time.sleep(2)  # to slow down process and not trigger anti-parsing algorithms
-        post_request_offers[1]["page"] = current_page
+        search_url[1]["page"] = current_page
         try:
-            page_list_of_offers = Offer.get_list_of_offers(
-                post_request_offers
+            offers_set = Offer.get_set_of_offers(
+                search_url
             )  # Parses offers from a page
         except Offer.PageNotValid:
             continue
-        for offer in page_list_of_offers:
+        for offer in offers_set:
             list_of_offers.append(
                 offer
             )  # Parses offers from all pages in a range and creates list

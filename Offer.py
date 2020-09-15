@@ -1,10 +1,9 @@
 import datetime
 import logging
 import re
-import sys
 
 import dateparser
-import requests
+import requests as r
 from bs4 import BeautifulSoup
 
 
@@ -13,7 +12,7 @@ class PageNotValid(Exception):
     pass
 
 
-def get_list_of_offers(url_with_params):
+def get_set_of_offers(url_with_params):
     """
     Find separate offers on a page with search results.
 
@@ -21,11 +20,11 @@ def get_list_of_offers(url_with_params):
     :param url_with_params:
     :return:
     """
-    page = requests.post(url_with_params[0], url_with_params[1], allow_redirects=False)
-    if page.status_code != 200:
-        logging.info("Search request resulted in code: {}".format(page.status_code))
+    search_results_page = r.post(url_with_params[0], url_with_params[1], allow_redirects=False)
+    if search_results_page.status_code != 200:
+        logging.info("Search request resulted in code: {}".format(search_results_page.status_code))
         raise PageNotValid
-    page_text = page.text
+    page_text = search_results_page.text
     soup = BeautifulSoup(page_text, "html.parser")
     offers = soup.find_all("td", class_="offer")
 
@@ -156,7 +155,7 @@ def get_details_from_offer_page(offer_url):
     """
     offer_details = {}
 
-    page = requests.get(offer_url, allow_redirects=False)
+    page = r.get(offer_url, allow_redirects=False)
     if page.status_code != 200:
         raise PageNotValid
     page_text = page.text
