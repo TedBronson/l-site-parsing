@@ -69,10 +69,9 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
         "a", class_="marginright5 link linkWithHash detailsLink"
     ).strong.string  # too specific.
     #  Should make class more general
-    # TODO: Remove URL part after ".html"
-    offer_url = offer.find(
+    offer_url = re.findall("(.+html)", offer.find(
         "a", class_="marginright5 link linkWithHash detailsLink"
-    ).attrs["href"]
+    ).attrs["href"])[0]
     try:
         offer_details = get_details_from_offer_page(offer_url)
     except (PageNotValid, AttributeError):
