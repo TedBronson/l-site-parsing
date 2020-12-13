@@ -55,7 +55,9 @@ def get_offer_details(offer):
         return list_of_offer_details
     offer_price = get_price(offer)
     try:
-        extended_offer_details(olx_offer_id, list_of_offer_details, offer, offer_price)
+        extended_offer_details(
+            olx_offer_id, list_of_offer_details, offer, offer_price
+        )
     except (PageNotValid, AttributeError):
         raise
     return list_of_offer_details
@@ -77,7 +79,9 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
 
     offer_css_class = "marginright5 link linkWithHash detailsLink"
 
-    offer_title = offer.find("a", class_=offer_css_class).strong.string  # too specific.
+    offer_title = offer.find(
+        "a", class_=offer_css_class
+    ).strong.string  # too specific.
     #  Should make class more general
     offer_url = re.findall(
         "(.+html)", offer.find("a", class_=offer_css_class).attrs["href"]
@@ -180,7 +184,9 @@ def get_details_from_offer_page(offer_url):
     for detail in all_detail_tables:
         detail_name = ""
         detail_value = ""
-        detail_name = detail.find("span", attrs={"class": "offer-details__name"}).string
+        detail_name = detail.find(
+            "span", attrs={"class": "offer-details__name"}
+        ).string
         if detail_name in [
             "Объявление от",
             "Тип объекта",
@@ -240,17 +246,21 @@ def get_details_from_offer_page(offer_url):
     # Get offer added date and format it
     try:
         offer_added_date = soup.find(string=re.compile(".*Добавлено: в.*"))
-        offer_added_date = re.search("\d{1,2}\D*\d{4}", offer_added_date).group(0)
+        offer_added_date = re.search(
+            "\d{1,2}\D*\d{4}", offer_added_date
+        ).group(0)
         offer_added_date = dateparser.parse(
             offer_added_date, date_formats=["%d %B %Y"], languages=["ru"]
         ).strftime("%Y-%m-%d")
         offer_details["offer_added_date"] = offer_added_date
     except Exception as detail:
-        print(f"Couldn't save 'offer added date' because of Exception: {detail}")
-    try:
-        offer_details["text"] = soup.find("div", attrs={"id": "textContent"}).get_text(
-            "|", strip=True
+        print(
+            f"Couldn't save 'offer added date' because of Exception: {detail}"
         )
+    try:
+        offer_details["text"] = soup.find(
+            "div", attrs={"id": "textContent"}
+        ).get_text("|", strip=True)
     except Exception as detail:
         print(detail)
 

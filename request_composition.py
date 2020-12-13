@@ -1,5 +1,3 @@
-
-
 def compose_request(
     city_id,
     region_id,
