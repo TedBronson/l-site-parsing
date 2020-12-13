@@ -8,7 +8,9 @@ from bs4 import BeautifulSoup
 
 
 class PageNotValid(Exception):
-    """Raised when offer detail page returns redirect, page not found or any code other than 200."""
+    """Raised when offer detail page returns redirect,
+    page not found or any code other than 200."""
+
     pass
 
 
@@ -20,9 +22,15 @@ def get_set_of_offers(url_with_params):
     :param url_with_params:
     :return:
     """
-    search_results_page = r.post(url_with_params[0], url_with_params[1], allow_redirects=False)
+    search_results_page = r.post(
+        url_with_params[0], url_with_params[1], allow_redirects=False
+    )
     if search_results_page.status_code != 200:
-        logging.info("Search request resulted in code: {}".format(search_results_page.status_code))
+        logging.info(
+            "Search request resulted in code: {}".format(
+                search_results_page.status_code
+            )
+        )
         raise PageNotValid
     page_text = search_results_page.text
     soup = BeautifulSoup(page_text, "html.parser")
@@ -35,7 +43,8 @@ def get_offer_details(offer):
     """
     Get offer details from individual page if offer doesn't exist in DB.
 
-    :param offer: BeatifulSoup object. Has string 'text' attribute that contains text of an offer.
+    :param offer: BeatifulSoup object. Has string 'text' attribute
+    that contains text of an offer.
     :return:
     """
     list_of_offer_details = []
@@ -56,7 +65,8 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
     """
     Parse individual offer page and save relevant data as dictionary.
 
-    This function opens link to an individual offer, parses fields on the page and populates list_of_offer_details
+    This function opens link to an individual offer, parses fields on the page
+    and populates list_of_offer_details
     :param data_id: olx_id
     :param list_of_offer_details: empty list
     :param offer: individual offer parsed from search page
@@ -65,13 +75,13 @@ def extended_offer_details(data_id, list_of_offer_details, offer, offer_price):
     """
     from config import category_id
 
-    offer_title = offer.find(
-        "a", class_="marginright5 link linkWithHash detailsLink"
-    ).strong.string  # too specific.
+    offer_css_class = "marginright5 link linkWithHash detailsLink"
+
+    offer_title = offer.find("a", class_=offer_css_class).strong.string  # too specific.
     #  Should make class more general
-    offer_url = re.findall("(.+html)", offer.find(
-        "a", class_="marginright5 link linkWithHash detailsLink"
-    ).attrs["href"])[0]
+    offer_url = re.findall(
+        "(.+html)", offer.find("a", class_=offer_css_class).attrs["href"]
+    )[0]
     try:
         offer_details = get_details_from_offer_page(offer_url)
     except (PageNotValid, AttributeError):
@@ -161,7 +171,9 @@ def get_details_from_offer_page(offer_url):
     soup = BeautifulSoup(page_text, "html.parser")
     offer_details_table = soup.find("ul", attrs={"class": "offer-details"})
     try:
-        all_detail_tables = offer_details_table.find_all("li", attrs={"class": "offer-details__item"})
+        all_detail_tables = offer_details_table.find_all(
+            "li", attrs={"class": "offer-details__item"}
+        )
     except AttributeError as details:
         print(details)
         raise
@@ -234,7 +246,7 @@ def get_details_from_offer_page(offer_url):
         ).strftime("%Y-%m-%d")
         offer_details["offer_added_date"] = offer_added_date
     except Exception as detail:
-        print("Couldn't save 'offer added date' because of Exception: {}".format(detail))
+        print(f"Couldn't save 'offer added date' because of Exception: {detail}")
     try:
         offer_details["text"] = soup.find("div", attrs={"id": "textContent"}).get_text(
             "|", strip=True
