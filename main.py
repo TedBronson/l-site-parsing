@@ -2,14 +2,15 @@ import logging
 import time
 from datetime import datetime, timedelta
 
-import config as cfg
-import Offer
-import request_composition
 import Data_storage as ds
+import Offer
+import config as cfg
+import request_composition
 
 logging.basicConfig(level=logging.INFO)
 
 
+# TODO: implement changing user agent
 # TODO: compare prices of a same listing
 # TODO: add search parameters to look into smaller market
 # TODO: get exact address from a map
@@ -18,7 +19,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main():
-    # Parse offers according to limitations set in config file and in request composition.py and create a list with results
+    """ Parse offers according to limitations set in config file and in request
+    composition.py and create a list with results """
     for query in ds.get_parsing_queries():
         offers_added = 0
 
@@ -69,9 +71,12 @@ def filter_out_existing_offers(list_of_offers, category_id):
     return filtered_list_of_offers
 
 
-def parse_search_results_pages(city_id, region_id, district_id, distance, query_term, category_id):
+def parse_search_results_pages(
+    city_id, region_id, district_id, distance, query_term, category_id
+):
     """
-    This function parses all offers from search pages within given limits and creates a list of offers with limited info
+    This function parses all offers from search pages within given limits
+    and creates a list of offers with limited info
     available (price, olx_id, title).
     :param city_id:
     :param region_id:
@@ -93,7 +98,7 @@ def parse_search_results_pages(city_id, region_id, district_id, distance, query_
     for current_page in range(
         cfg.search_pages_lower_limit, cfg.search_pages_upper_limit
     ):
-        time.sleep(2)  # to slow down process and not trigger anti-parsing algorithms
+        time.sleep(2)  # to slow down process for anti-parsing algorithms
         search_url[1]["page"] = current_page
         try:
             offers_set = Offer.get_set_of_offers(
@@ -106,7 +111,7 @@ def parse_search_results_pages(city_id, region_id, district_id, distance, query_
                 offer
             )  # Parses offers from all pages in a range and creates list
     logging.info(
-        "Number of offers parsed from search: {} \n".format(len(list_of_offers))
+        "Number of offers parsed from search: {}\n".format(len(list_of_offers))
     )
     return list_of_offers
 
